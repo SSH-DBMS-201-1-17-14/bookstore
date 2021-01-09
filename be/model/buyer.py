@@ -30,10 +30,9 @@ class Buyer(db_conn.DBConn):
             cursor = self.conn.cursor()
 
             for book_id, count in id_and_count:
-                cursor.execute("SELECT store_id,book_id FROM \"store\" "
+                cursor.execute("SELECT book_id, stock_level, book_info FROM \"store\" "
                                "WHERE store_id = (%s) AND book_id = (%s) ",(store_id,book_id))
 
-                #cursor.execute("SELECT book_id, stock_level, book_info FROM store WHERE store_id = '%s' AND book_id = '%s'" % (store_id,book_id))
                 row = cursor.fetchone()
                 if row is None:
                     return error.error_non_exist_book_id(book_id) + (order_id,)
