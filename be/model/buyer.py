@@ -46,7 +46,7 @@ class Buyer(db_conn.DBConn):
 
 
                 cursor.execute("UPDATE \"store\" SET stock_level = stock_level - (%s) "
-                               "WHERE store_id = (%s) AND book_id = (%s) and stock_level >= (%s)",(count, store_id, book_id, count))
+                               "WHERE store_id = (%s) AND book_id = (%s) AND stock_level >= (%s)",(count, store_id, book_id, count))
                 # res = cursor.execute(
                 #     "UPDATE store set stock_level = stock_level - %d WHERE store_id = '%s' and book_id = %d  and stock_level >=%d" % (
                 #         count, store_id, book_id, count))
@@ -55,7 +55,7 @@ class Buyer(db_conn.DBConn):
 
                 cursor.execute(
                     "INSERT into \"new_order_detail\" (order_id, book_id, count, price) "
-                    "VALUES (%s, %s, %s, %s, %s)",
+                    "VALUES (%s, %s, %s, %s)",
                     (order_id, book_id, count, price))
                 # cursor.execute(
                 #     "INSERT INTO new_order_detail(order_id, book_id, count, price) VALUES('%s',%d, %d, %d);" % (
