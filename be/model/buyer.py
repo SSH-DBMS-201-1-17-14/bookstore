@@ -28,7 +28,6 @@ class Buyer(db_conn.DBConn):
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
 
             cursor = self.conn.cursor()
-
             for book_id, count in id_and_count:
                 cursor.execute("SELECT book_id, stock_level, book_info FROM \"store\" "
                                "WHERE store_id = (%s) AND book_id = (%s) ",(store_id,book_id))
@@ -45,7 +44,6 @@ class Buyer(db_conn.DBConn):
                 if stock_level < count:
                     return error.error_stock_level_low(book_id) + (order_id,)
 
-
                 cursor.execute("UPDATE \"store\" SET stock_level = stock_level - (%s) "
                                "WHERE store_id = (%s) AND book_id = (%s) AND stock_level >= (%s)",(count, store_id, book_id, count))
                 # res = cursor.execute(
@@ -57,17 +55,18 @@ class Buyer(db_conn.DBConn):
                 cursor.execute(
                     "INSERT into \"new_order_detail\" (order_id, book_id, count, price) "
                     "VALUES (%s, %s, %s, %s)",
-                    (order_id, book_id, count, price))
+                    (uid, book_id, count, price))
                 # cursor.execute(
                 #     "INSERT INTO new_order_detail(order_id, book_id, count, price) VALUES('%s',%d, %d, %d);" % (
                 #         order_id, book_id, count, price))
 
+
             cursor.execute(
                 "INSERT INTO \"new_order\"(order_id, store_id, user_id) VALUES(%s,%s,%s)" ,(
-                    order_id, store_id, user_id))
+                    uid, store_id, user_id))
 
-            self.conn.commit()
             order_id = uid
+            self.conn.commit()
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e)), ""
