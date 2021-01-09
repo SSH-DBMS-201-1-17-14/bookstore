@@ -3,7 +3,7 @@ import sqlite3 as sqlite
 import random
 import base64
 import simplejson as json
-
+from be.model import db_conn
 
 class Book:
     id: str
@@ -28,34 +28,47 @@ class Book:
         self.pictures = []
 
 
-class BookDB:
+class BookDB(db_conn.DBConn):
+    table:str
     def __init__(self, large: bool = False):
-        parent_path = os.path.dirname(os.path.dirname(__file__))
-        self.db_s = os.path.join(parent_path, "data/book.db")
-        self.db_l = os.path.join(parent_path, "data/book_lx.db")
+        db_conn.DBConn.__init__(self)
         if large:
-            self.book_db = self.db_l
+            self.table="book_lx"
         else:
-            self.book_db = self.db_s
+            self.table="book"
+        # parent_path = os.path.dirname(os.path.dirname(__file__))
+        # self.db_s = os.path.join(parent_path, "data/book.db")
+        # self.db_l = os.path.join(parent_path, "data/book_lx.db")
+        # if large:
+        #     self.book_db = self.db_l
+        # else:
+        #     self.book_db = self.db_s
 
     def get_book_count(self):
-        conn = sqlite.connect(self.book_db)
-        cursor = conn.execute(
-            "SELECT count(id) FROM book")
+        # conn = sqlite.connect(self.book_db)
+        cursor=self.conn.cursor()
+        query="SELECT count(id) FROM \""+ (self.table)+"\""
+        cursor.execute(query)
+        # cursor.execute(
+        #     "SELECT count(id) FROM \"(%s)\"",(self.table))
         row = cursor.fetchone()
         return row[0]
 
     def get_book_info(self, start, size) -> [Book]:
         books = []
-        conn = sqlite.connect(self.book_db)
-        cursor = conn.execute(
-            "SELECT id, title, author, "
-            "publisher, original_title, "
-            "translator, pub_year, pages, "
-            "price, currency_unit, binding, "
-            "isbn, author_intro, book_intro, "
-            "content, tags, picture FROM book ORDER BY id "
-            "LIMIT ? OFFSET ?", (size, start))
+        # conn = sqlite.connect(self.book_db)
+        cursor = self.conn.cursor()
+        table_name=self.table.split("'")
+        query="SELECT id, title, author, "+"publisher, original_title, "+"translator, pub_year, pages, "+"price, currency_unit, binding, "+"isbn, author_intro, book_intro, "+"content, tags FROM "+self.table+" ORDER BY id LIMIT "+str(size)+" OFFSET "+str(start)
+        cursor.execute(query)
+        # cursor.execute(
+        #     "SELECT id, title, author, "
+        #     "publisher, original_title, "
+        #     "translator, pub_year, pages, "
+        #     "price, currency_unit, binding, "
+        #     "isbn, author_intro, book_intro, "
+        #     "content, tags, picture FROM "
+        #     " ORDER BY id LIMIT(%s) OFFSET  (%s)", (size, start))
         for row in cursor:
             book = Book()
             book.id = row[0]
@@ -76,8 +89,8 @@ class BookDB:
             book.content = row[14]
             tags = row[15]
 
-            picture = row[16]
-
+            # picture = row[16]
+            picture=None
             for tag in tags.split("\n"):
                 if tag.strip() != "":
                     book.tags.append(tag)
