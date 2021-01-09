@@ -76,10 +76,10 @@ class Buyer(db_conn.DBConn):
         return 200, "ok", order_id
 
     def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
-        conn = self.conn
+        #conn = self.conn
         try:
             cursor = self.conn.cursor()
-            cursor.execute("SELECT order_id, user_id, store_id FROM \"new_order \"WHERE order_id = (%s)",(order_id,))
+            cursor.execute("SELECT order_id, user_id, store_id FROM \"new_order \" WHERE order_id = (%s)",(order_id,))
             row = cursor.fetchone()
             if row is None:
                 return error.error_invalid_order_id(order_id)
@@ -111,7 +111,8 @@ class Buyer(db_conn.DBConn):
 
             cursor.execute("SELECT book_id, count, price FROM \"new_order_detail\" WHERE order_id = (%s)", (order_id,))
             total_price = 0
-            for row in cursor:
+            rows = cursor.fetchall()
+            for row in rows:
                 count = row[1]
                 price = row[2]
                 total_price = total_price + price * count
@@ -133,11 +134,11 @@ class Buyer(db_conn.DBConn):
             if cursor.rowcount == 0:
                 return error.error_non_exist_user_id( seller_id )
 
-            cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id, ))
+            cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id,))
             if cursor.rowcount == 0:
                 return error.error_invalid_order_id(order_id)
 
-            cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
+            cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id,))
             if cursor.rowcount == 0:
                 return error.error_invalid_order_id(order_id)
 
@@ -153,7 +154,7 @@ class Buyer(db_conn.DBConn):
     def add_funds(self, user_id, password, add_value) -> (int, str):
         try:
             cursor = self.conn.cursor()
-            cursor.execute("SELECT password  from \"user\" where user_id= (%s)", (user_id,))
+            cursor.execute("SELECT password from \"user\" where user_id= (%s)", (user_id,))
             row = cursor.fetchone()
             if row is None:
                 return error.error_authorization_fail()
@@ -170,8 +171,8 @@ class Buyer(db_conn.DBConn):
             self.conn.commit()
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
-            return 528, "{}".format(str(e)),
+            return 528, "{}".format(str(e))
         except BaseException as e:
-            return 530, "{}".format(str(e)),
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
