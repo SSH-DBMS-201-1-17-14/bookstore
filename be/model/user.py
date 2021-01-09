@@ -79,6 +79,7 @@ class User(db_conn.DBConn):
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError):
             return error.error_exist_user_id(user_id)
+        cursor.close()
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> (int, str):
@@ -90,6 +91,7 @@ class User(db_conn.DBConn):
         db_token = row[0]
         if not self.__check_token(user_id, db_token, token):
             return error.error_authorization_fail()
+        cursor.close()
         return 200, "ok"
 
     def check_password(self, user_id: str, password: str) -> (int, str):
@@ -101,7 +103,7 @@ class User(db_conn.DBConn):
 
         if password != row[0]:
             return error.error_authorization_fail()
-
+        cursor.close()
         return 200, "ok"
 
     def login(self, user_id: str, password: str, terminal: str) -> (int, str, str):
@@ -119,6 +121,7 @@ class User(db_conn.DBConn):
             if cursor.rowcount == 0:
                 return error.error_authorization_fail() + ("", )
             self.conn.commit()
+            cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
@@ -141,6 +144,7 @@ class User(db_conn.DBConn):
                 return error.error_authorization_fail()
 
             self.conn.commit()
+            cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
@@ -158,6 +162,7 @@ class User(db_conn.DBConn):
                 self.conn.commit()
             else:
                 return error.error_authorization_fail()
+            cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
@@ -180,6 +185,7 @@ class User(db_conn.DBConn):
                 return error.error_authorization_fail()
 
             self.conn.commit()
+            cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
