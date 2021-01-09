@@ -1,5 +1,5 @@
 from be.model import store
-
+import psycopg2
 
 class DBConn:
     def __init__(self):
@@ -7,8 +7,10 @@ class DBConn:
 
     # 是否存在某用户
     def user_id_exist(self, user_id):
-        cursor = self.conn.execute("SELECT user_id FROM user WHERE user_id = ?;", (user_id,))
-        row = cursor.fetchone()
+        cur=self.conn.cursor()
+        cur.execute("SELECT user_id FROM \"user\" WHERE user_id =  (%s)", (user_id,))
+        row = cur.fetchone()
+        cur.close()
         if row is None:
             return False
         else:
@@ -16,8 +18,10 @@ class DBConn:
 
     # 是否存在某本书
     def book_id_exist(self, store_id, book_id):
-        cursor = self.conn.execute("SELECT book_id FROM store WHERE store_id = ? AND book_id = ?;", (store_id, book_id))
-        row = cursor.fetchone()
+        cur=self.conn.cursor()
+        cur.execute("SELECT book_id FROM \"store\" WHERE store_id = (%s) AND book_id = (%s)", (store_id, book_id))
+        row = cur.fetchone()
+        cur.close()
         if row is None:
             return False
         else:
@@ -25,8 +29,10 @@ class DBConn:
 
     # 是否存在某家店铺
     def store_id_exist(self, store_id):
-        cursor = self.conn.execute("SELECT store_id FROM user_store WHERE store_id = ?;", (store_id,))
-        row = cursor.fetchone()
+        cur=self.conn.cursor()
+        cur.execute("SELECT store_id FROM \"user_store\" WHERE store_id =  (%s) ", (store_id,))
+        row = cur.fetchone()
+        cur.close()
         if row is None:
             return False
         else:
@@ -34,8 +40,10 @@ class DBConn:
 
     # 检查店铺和用户的所属关系
     def user_store_exist(self, user_id, store_id):
-        cursor = self.conn.execute("SELECT * FROM user_store WHERE user_id=? AND store_id = ?;", (user_id,store_id))
-        row =cursor.fetchone()
+        cur=self.conn.cursor()
+        cur.execute("SELECT * FROM \"user_store\" WHERE user_id= (%s) AND store_id =  (%s) ", (user_id,store_id))
+        row =cur.fetchone()
+        cur.close()
         if row is None:
             return False
         else:
