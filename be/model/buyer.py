@@ -56,9 +56,6 @@ class Buyer(db_conn.DBConn):
                     "INSERT into \"new_order_detail\" (order_id, book_id, count, price) "
                     "VALUES (%s, %s, %s, %s)",
                     (uid, book_id, count, price))
-                # cursor.execute(
-                #     "INSERT INTO new_order_detail(order_id, book_id, count, price) VALUES('%s',%d, %d, %d);" % (
-                #         order_id, book_id, count, price))
 
 
             cursor.execute(
@@ -68,9 +65,12 @@ class Buyer(db_conn.DBConn):
             order_id = uid
             self.conn.commit()
             cursor.close()
+
         except (Exception, psycopg2.DatabaseError) as e:
+            logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
+            logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e)), ""
 
         return 200, "ok", order_id
@@ -119,16 +119,16 @@ class Buyer(db_conn.DBConn):
             if balance < total_price:
                 return error.error_not_sufficient_funds(order_id)
 
-            cursor.execute("UPDATE \"user\" set balance = balance - (%s)"
+            cursor.execute("UPDATE \"user\" SET balance = balance - (%s)"
                                   "WHERE user_id = (%s) AND balance >= (%s)",
                                   (total_price, buyer_id, total_price))
 
             if cursor.rowcount == 0:
                 return error.error_not_sufficient_funds(order_id)
 
-            cursor.execute("UPDATE \"user\" set balance = balance + (%s)"
+            cursor.execute("UPDATE \"user\" SET balance = balance + (%s)"
                                   "WHERE user_id = (%s)",
-                                  (total_price, seller_id ))
+                                  (total_price, seller_id))
 
             if cursor.rowcount == 0:
                 return error.error_non_exist_user_id( seller_id )
@@ -144,11 +144,9 @@ class Buyer(db_conn.DBConn):
             self.conn.commit()
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
-            logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e))
         except BaseException as e:
-            logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)), ""
+            return 530, "{}".format(str(e))
 
         return 200, "ok"
 
@@ -172,8 +170,8 @@ class Buyer(db_conn.DBConn):
             self.conn.commit()
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e)),
         except BaseException as e:
-            return 530, "{}".format(str(e)), ""
+            return 530, "{}".format(str(e)),
         return 200, "ok"
 
