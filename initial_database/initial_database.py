@@ -3,7 +3,7 @@ import sqlite3 as sqlite
 import random
 import base64
 import psycopg2
-
+import logging
 
 class Book:
     id: str
@@ -104,44 +104,53 @@ class BookPostgresql:
         whole_book_info = self.get_book_info(start,book_count)
         # 连接数据库并创建表格存放数据
         conn = psycopg2.connect(database="book", user="postgres", password="1234", host="localhost", port="5432")
-        print ("Opened database successfully")
-        cur = conn.cursor()
-        cur.execute('''CREATE TABLE book_info
-               (id TEXT PRIMARY KEY,
-               title  TEXT,
-               author TEXT,
-               publisher TEXT,
-               original_title TEXT,
-               translator TEXT,
-               pub_year TEXT,
-               pages INTEGER,
-               price INTEGER,
-               currency_unit TEXT,
-               binding TEXT,
-               isbn TEXT,
-               author_intro TEXT,
-               book_intro TEXT,
-               content TEXT,
-               tags TEXT,
-               picture BYTEA);''')
-
-        print ("Table created successfully")
-        conn.commit()
-        print("Table created successfully")
-        # 导入数据
-        for one_book_info in whole_book_info:
-            cur.execute(
-                "INSERT INTO book_info(id,title,author,publisher,original_title,translator,pub_year,pages,price,currency_unit,binding,isbn,author_intro,book_intro,content,tags) "
-                "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                (one_book_info.id,one_book_info.title,one_book_info.author,one_book_info.publisher,one_book_info.original_title,
-                 one_book_info.translator,str(one_book_info.pub_year),one_book_info.pages,one_book_info.price,one_book_info.currency_unit,
-                 one_book_info.binding,one_book_info.isbn,one_book_info.author_intro,one_book_info.book_intro,one_book_info.content,
-                 one_book_info.tags))
+        try:
+            print ("Opened database successfully")
+            cur = conn.cursor()
+            cur.execute('''CREATE TABLE book_info
+                   (id TEXT PRIMARY KEY,
+                   title  TEXT,
+                   author TEXT,
+                   publisher TEXT,
+                   original_title TEXT,
+                   translator TEXT,
+                   pub_year TEXT,
+                   pages INTEGER,
+                   price INTEGER,
+                   currency_unit TEXT,
+                   binding TEXT,
+                   isbn TEXT,
+                   author_intro TEXT,
+                   book_intro TEXT,
+                   content TEXT,
+                   tags TEXT,
+                   picture BYTEA)''')
             conn.commit()
-        # 关闭数据库连接
-        conn.close()
+            print("Table created successfully")
+            # 导入数据
+            for one_book_info in whole_book_info:
+                cur.execute(
+                    "INSERT INTO book_info(id,title,author,publisher,original_title,translator,pub_year,pages,price,currency_unit,binding,isbn,author_intro,book_intro,content,tags) "
+                    "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (one_book_info.id, one_book_info.title, one_book_info.author, one_book_info.publisher,
+                     one_book_info.original_title,
+                     one_book_info.translator, str(one_book_info.pub_year), one_book_info.pages, one_book_info.price,
+                     one_book_info.currency_unit,
+                     one_book_info.binding, one_book_info.isbn, one_book_info.author_intro, one_book_info.book_intro,
+                     one_book_info.content,
+                     one_book_info.tags))
+                conn.commit()
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.error(error)
+            conn.rollback()
+        finally:
+            if conn is not None:
+                conn.close()
+
 
 if __name__ == '__main__':
     bookdb=BookPostgresql(False)
     print(bookdb.get_book_count())
     bookdb.postgresql_book_info()
+
