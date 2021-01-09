@@ -67,12 +67,10 @@ class Buyer(db_conn.DBConn):
 
             self.conn.commit()
             order_id = uid
-
-        except sqlite.Error as e:
-            logging.info("528, {}".format(str(e)))
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
-            logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e)), ""
 
         return 200, "ok", order_id
@@ -144,12 +142,13 @@ class Buyer(db_conn.DBConn):
                 return error.error_invalid_order_id(order_id)
 
             self.conn.commit()
-
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
-
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e)), ""
         except BaseException as e:
-            return 530, "{}".format(str(e))
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e)), ""
 
         return 200, "ok"
 
@@ -171,10 +170,10 @@ class Buyer(db_conn.DBConn):
                 return error.error_non_exist_user_id(user_id)
 
             self.conn.commit()
-        except sqlite.Error as e:
-            return 528, "{}".format(str(e))
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as e:
+            return 528, "{}".format(str(e)), ""
         except BaseException as e:
-            return 530, "{}".format(str(e))
-
+            return 530, "{}".format(str(e)), ""
         return 200, "ok"
 
