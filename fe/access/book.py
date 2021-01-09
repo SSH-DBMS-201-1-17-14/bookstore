@@ -35,7 +35,7 @@ class BookDB(db_conn.DBConn):
         if large:
             self.table="book_lx"
         else:
-            self.table="book"
+            self.table="book_info"
         # parent_path = os.path.dirname(os.path.dirname(__file__))
         # self.db_s = os.path.join(parent_path, "data/book.db")
         # self.db_l = os.path.join(parent_path, "data/book_lx.db")
@@ -47,7 +47,7 @@ class BookDB(db_conn.DBConn):
     def get_book_count(self):
         # conn = sqlite.connect(self.book_db)
         cursor=self.conn.cursor()
-        query="SELECT count(id) FROM \""+ (self.table)+"\""
+        query="""SELECT count(id) FROM %s"""%(self.table)
         cursor.execute(query)
         # cursor.execute(
         #     "SELECT count(id) FROM \"(%s)\"",(self.table))
@@ -58,8 +58,9 @@ class BookDB(db_conn.DBConn):
         books = []
         # conn = sqlite.connect(self.book_db)
         cursor = self.conn.cursor()
-        table_name=self.table.split("'")
-        query="SELECT id, title, author, "+"publisher, original_title, "+"translator, pub_year, pages, "+"price, currency_unit, binding, "+"isbn, author_intro, book_intro, "+"content, tags FROM "+self.table+" ORDER BY id LIMIT "+str(size)+" OFFSET "+str(start)
+        query="""SELECT id, title, author, publisher, original_title, " \
+              "translator, pub_year, pages, price, currency_unit, binding, " \
+              "isbn, author_intro, book_intro, content, tags FROM %s ORDER BY id LIMIT %s OFFSET %s""" % (self.table,start,size)
         cursor.execute(query)
         # cursor.execute(
         #     "SELECT id, title, author, "
