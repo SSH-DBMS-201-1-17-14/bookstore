@@ -62,15 +62,13 @@ class BookSplit(db_conn.DBConn):
                     size) + " OFFSET " + str(start)
                 cursor.execute(query)
             else:
-                # 获得店铺 id 对应的 book_id
-                query_bookid = "SELECT store_id, book_id FROM \"store\" WHERE id = %s",(self.store_id,)
-                cursor.execute(query_bookid)
+                # 获得店铺 id 对应的 book_id（调用函数前先判断是否存在这个店家）
+                cursor.execute("SELECT store_id, book_id FROM \"store\" WHERE store_id = (%s)",(str(self.store_id),))
                 book_id = []
                 for row in cursor:
                     book_id.append(row[1])
-                query = "SELECT id, title, author, publisher, original_title, " + "translator, pub_year, pages, price, currency_unit, binding, " + "isbn, author_intro, book_intro, content, tags FROM " + self.book_db.table + " WHERE id IN %(book_id)s ORDER BY id LIMIT " + str(
-                    size) + " OFFSET " + str(start)
-                cursor.execute(query,{'book_id':tuple(book_id),})
+                cursor.execute("SELECT id, title, author, publisher, original_title," + "translator, pub_year, pages, price, currency_unit, binding, "+ "isbn, author_intro, book_intro, content, tags FROM " + self.book_db.table + " WHERE id = ANY (%s) ORDER BY id LIMIT " + str(
+                    size) + " OFFSET " + str(start),(book_id,))
             # cursor.execute(
             #     "SELECT id, title, author, "
             #     "publisher, original_title, "
@@ -195,6 +193,6 @@ class BookSplit(db_conn.DBConn):
 
 
 if __name__ == '__main__':
-    bookdb = BookSplit()
+    bookdb = BookSplit(False,50000)
     # 对于全局索引进行初始表格构建以及数据插入
     bookdb.inverted_index()
