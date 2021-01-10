@@ -36,7 +36,7 @@ class TestDeliver:
 
     def test_error_set_pay(self):
         code = self.seller.deliver(self.seller_id, self.order_id)
-        assert code == 522
+        assert code == 523
 
     def test_error_non_order_id(self):
         code = self.buyer.add_funds(self.total_price)
@@ -45,7 +45,7 @@ class TestDeliver:
         assert code == 200
 
         code = self.seller.deliver(self.seller_id, self.order_id + "_x")
-        assert code == 521
+        assert code == 522
 
     def test_error_non_user(self):
         code = self.buyer.add_funds(self.total_price)
@@ -61,7 +61,7 @@ class TestDeliver:
         code = self.buyer.payment(self.order_id)
         assert code == 200
         code = self.another_seller.deliver(self.another_seller_id, self.order_id)
-        assert code == 520
+        assert code == 521
 
     def test_ok(self):
         code = self.buyer.add_funds(self.total_price)

@@ -4,6 +4,7 @@ Store_Num_Per_User = 2
 Seller_Num = 2
 Buyer_Num = 10
 Session = 1
+# Session=0
 Request_Per_Session = 1000
 Default_Stock_Level = 1000000
 Default_User_Funds = 10000000
