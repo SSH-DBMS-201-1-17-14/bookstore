@@ -8,6 +8,7 @@ from initial_database import intial_search
 import psycopg2
 import jieba
 import re
+from math import ceil
 
 # encode a json string like:
 #   {
@@ -197,8 +198,9 @@ class User(db_conn.DBConn):
 
     # 对一个字符串进行分词，获得词项对应的列表
     def split_user_input(self,string):
-        new_string = re.sub(r'[^\w\s]', '', string)
-        terms = jieba.lcut(new_string)
+        new_string = re.sub(r'[^\w\s]', '', string)  # 只保留中文和英文字符，去掉符号
+        terms = jieba.lcut(new_string)  # 分词 得到分词列表
+        # 去除为空的
         while ' ' in terms:
             terms.remove(' ')
         while '\n' in terms:
@@ -220,14 +222,31 @@ class User(db_conn.DBConn):
 
     # 传入 book_id 对应 其包含关键词个数 的字典以及 book_id 对应 分词后词项长度 的字典
     # 对每个 book_id 的重要程度打分并且降序排序，返回对应页数的 book_id 列表
-    def sort_id_importance(self,term_in_id, freqdic,page):
+    def sort_id_importance_pagek(self,term_in_id, freqdic, pagek):
         importance_score = {}
+        # 对id
         for id_num in term_in_id.keys():
-            word_num = freqdic[id_num]
-            score = term_in_id[id_num] / word_num * 1.0
-            importance_score[id_num] = score
-        importance_score = sorted(importance_score.items(), key=lambda d: d[1], reverse=True)
-        return importance_score
+            word_num = freqdic[id_num]  # 得到id对应字符串本身分词个数
+            score = term_in_id[id_num] / word_num * 1.0  # 得分
+            importance_score[id_num] = score    # 得到所有排序
+        importance_score = sorted(importance_score.items(), key=lambda d: d[1], reverse=True)  # 由分数的从高到低进行排序
+        # 因为最后一页不一定能显10个，判断一下能分几页
+        id_n = len(importance_score)
+        pages_num = ceil(id_n / 10 * 1.0)  # 共有pages_num
+        # 输入页码超过最大页数,输出空列表
+        if pagek > pages_num:
+            return []
+        # 输入页码小于等于最大页数
+        # 分页 第k页：下标（从0开始）  ： 10*(k-1) 到 k*10-1
+        start = 10 * (pagek - 1)
+        end = pagek * 10 - 1
+        # 如果是最后一页,不一定能输10个，只能输出到最后一个
+        if pagek == pages_num:
+            end = id_n - 1
+        id_l = []  # 最后输出的id
+        for i in range(start, end + 1):
+            id_l.append(importance_score[i][0])
+        return id_l
 
     def store_search_title(self,store_id: str,search_info: str,page:int):
         try:
@@ -295,9 +314,9 @@ class User(db_conn.DBConn):
             return 530, "{}".format(str(e)), ""
         return 200, "ok", book_id
 
-    def global_search_title(self,search_info:str):
+    def global_search_title(self,search_info:str,page:int):
         # 先对搜索内容进行分词，获得关键词
-        keyword_list =
+        keyword_list = self.split_user_input(search_info)
         book_id_count = {}    # 每一个 book_id 包含关键字个数
         book_id_length = {}   # 每一个 book_id 本身拥有的单词个数
         try:
