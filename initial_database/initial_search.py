@@ -88,9 +88,6 @@ class BookSplit(db_conn.DBConn):
         except (Exception, psycopg2.DatabaseError) as error:
             logging.error(error)
             self.conn.rollback()
-        finally:
-            if self.conn is not None:
-                self.conn.close()
 
     # 封装为一个函数 返回两个字典：倒排索引表（字典）和每个文档的词频（字典）
     def inverted_index_dics(self,dic):
@@ -105,17 +102,14 @@ class BookSplit(db_conn.DBConn):
                 terms.remove(' ')
             while '\n' in terms:
                 terms.remove('\n')
-
             new_dic[x] = terms
             freq_dic[x] = len(terms)
-
         idx = list(new_dic.keys())
         term_id_list = []  # map
         for x in idx:
             term_list = new_dic[x]
             for term in term_list:
                 term_id_list.append([term, x])
-
         index_dic = {}  # reduce
         for x in term_id_list:
             # x[0]:词          x[1]:出现的文档id
@@ -124,13 +118,12 @@ class BookSplit(db_conn.DBConn):
             else:
                 if x[1] not in index_dic[x[0]]:
                     index_dic[x[0]].append(x[1])
-
         return index_dic, freq_dic
 
 
     def inverted_index(self):
         dict_title, dict_book_intro, dict_content = self.get_book_info()
-        print(dict_content)
+        #print(dict_content)
         # 构建倒排索引表
         dict_split_title,freq_split_title = self.inverted_index_dics(dict_title)
         dict_split_book_intro,freq_split_book_intro = self.inverted_index_dics(dict_book_intro)
@@ -140,19 +133,19 @@ class BookSplit(db_conn.DBConn):
                 # 由于全局搜索的倒排索引表不会改变，为了避免每次搜索重新构建倒排索引表，决定将其存入数据库中
                 cursor = self.conn.cursor()
                 # 存储 title 的倒排索引
-                cursor.execute('''CREATE TABLE book_split_title
+                cursor.execute('''CREATE TABLE IF NOT EXISTS "book_split_title"
                                    (keyword TEXT PRIMARY KEY,
                                     book_id TEXT)''')
                 # 存储 book_intro 的倒排索引
-                cursor.execute('''CREATE TABLE book_split_book_intro
+                cursor.execute('''CREATE TABLE IF NOT EXISTS "book_split_book_intro"
                                    (keyword TEXT PRIMARY KEY,
                                     book_id TEXT)''')
                 # 存储 content 的倒排索引
-                cursor.execute('''CREATE TABLE book_split_content
+                cursor.execute('''CREATE TABLE IF NOT EXISTS "book_split_content"
                                     (keyword TEXT PRIMARY KEY,
                                     book_id TEXT)''')
                 # 存储 title、book_intro、content 的包含关键词个数
-                cursor.execute('''CREATE TABLE keyword_count
+                cursor.execute('''CREATE TABLE IF NOT EXISTS "keyword_count"
                                    (book_id TEXT PRIMARY KEY,
                                     title_count INTEGER,
                                     book_intro_count INTEGER,
@@ -160,9 +153,24 @@ class BookSplit(db_conn.DBConn):
                 self.conn.commit()
                 print("Table created successfully")
                 # 导入数据
+                # title 分词
                 for items in dict_split_title.items():
                     cursor.execute(
                         "INSERT INTO book_split_title(keyword,book_id) "
+                        "VALUES(%s,%s)",
+                        (items[0],items[1]))
+                    self.conn.commit()
+                # book_intro 分词
+                for items in dict_split_book_intro.items():
+                    cursor.execute(
+                        "INSERT INTO book_split_book_intro(keyword,book_id) "
+                        "VALUES(%s,%s)",
+                        (items[0], items[1]))
+                    self.conn.commit()
+                # content 分词
+                for items in dict_split_content.items():
+                    cursor.execute(
+                        "INSERT INTO book_split_content(keyword,book_id) "
                         "VALUES(%s,%s)",
                         (items[0],items[1]))
                     self.conn.commit()
@@ -173,7 +181,7 @@ class BookSplit(db_conn.DBConn):
                         "VALUES(%s,%s,%s,%s)",
                         (book_id,freq_split_title[book_id],freq_split_book_intro[book_id],freq_split_content[book_id]))
                     self.conn.commit()
-                return self.store_id
+                return "ok"
             else:
                 # 若根据店铺进行搜索，由于每个店铺构建一个倒排索引表数量过多，选择每次检索，根据店铺 id 构建一次倒排索引表
                 return dict_split_title, dict_split_book_intro, dict_split_content
@@ -186,10 +194,7 @@ class BookSplit(db_conn.DBConn):
                 self.conn.close()
 
 
-
-
-
 if __name__ == '__main__':
     bookdb = BookSplit()
-    # 对于
+    # 对于全局索引进行初始表格构建以及数据插入
     bookdb.inverted_index()
