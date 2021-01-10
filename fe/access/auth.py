@@ -47,3 +47,66 @@ class Auth:
         url = urljoin(self.url_prefix, "unregister")
         r = requests.post(url, json=json)
         return r.status_code
+
+    def store_search_title(self, user_id: str, store_id: str, search_info: str, page: int):
+        json = {
+            "user_id": user_id,
+            "store_id": store_id,
+            "search_info": search_info,
+            "page": page
+        }
+        url = urljoin(self.url_prefix, "store_search_title")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+    def store_search_book_intro(self, user_id: str, store_id: str, search_info: str, page: int):
+        json = {
+            "user_id": user_id,
+            "store_id": store_id,
+            "search_info": search_info,
+            "page": page
+        }
+        url = urljoin(self.url_prefix, "store_search_book_intro")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+    def store_search_content(self, user_id: str, store_id: str, search_info: str, page: int):
+        json = {
+            "user_id": user_id,
+            "store_id": store_id,
+            "search_info": search_info,
+            "page": page
+        }
+        url = urljoin(self.url_prefix, "store_search_content")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+    def global_search_title(self,user_id: str,search_info:str,page:int):
+        json = {
+            "user_id": user_id,
+            "search_info": search_info,
+            "page": page
+        }
+        url = urljoin(self.url_prefix, "global_search_title")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+    def global_search_book_intro(self,user_id: str,search_info:str,page:int):
+        json = {
+            "user_id": user_id,
+            "search_info": search_info,
+            "page": page
+        }
+        url = urljoin(self.url_prefix, "global_search_book_intro")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+    def global_search_content(self,user_id: str,search_info:str,page:int):
+        json = {
+            "user_id": user_id,
+            "search_info": search_info,
+            "page": page
+        }
+        url = urljoin(self.url_prefix, "global_search_content")
+        r = requests.post(url, json=json)
+        return r.status_code
