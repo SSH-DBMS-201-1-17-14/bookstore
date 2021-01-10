@@ -107,7 +107,7 @@ class BookPostgresql:
         try:
             print ("Opened database successfully")
             cur = conn.cursor()
-            cur.execute('''CREATE TABLE book_info
+            cur.execute('''CREATE TABLE IF NOT EXISTS "book_info"
                    (id TEXT PRIMARY KEY,
                    title  TEXT,
                    author TEXT,
@@ -141,6 +141,7 @@ class BookPostgresql:
                      one_book_info.tags))
                 conn.commit()
             cur.close()
+            return "ok"
         except (Exception, psycopg2.DatabaseError) as error:
             logging.error(error)
             conn.rollback()
