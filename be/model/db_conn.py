@@ -68,6 +68,8 @@ class DBConn:
         cur.close()
         if row is None:
             return False
+        else:
+            return True
 
     # 某家店铺是否未上架过新书
     def store_book_empty(self, store_id):
@@ -80,3 +82,24 @@ class DBConn:
             return False
         else:
             return True
+
+    # 检查此订单是否由此用户下单
+    def buyer_order_exist(self,user_id,order_id):
+        cur=self.conn.cursor()
+        cur.execute("select * from \"new_order\" where order_id=(%s) and user_id=(%s)",(order_id,user_id,))
+        row=cur.fetchone()
+        if row is None:
+            return False
+        else:
+            return True
+
+    def deliver_flag_set(self,order_id):
+        cur=self.conn.cursor()
+        cur.execute("select * from \"new_order\" where order_id=(%s) and deliver=1",(order_id,))
+        row = cur.fetchone()
+        cur.close()
+        if row is None:
+            return False
+        else:
+            return True
+

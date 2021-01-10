@@ -1,4 +1,3 @@
-
 error_code = {
     401: "authorization fail.",
     511: "non exist user id {}",
@@ -26,7 +25,10 @@ error_code = {
     533: "",
     534: "",
     535: "",
+    541: "order {} doesn't belong to user {} ",
+    542: "order {} hasn't been deliverd"
 }
+
 
 # 不存在此用户拥有这个店铺
 # def error_non_exist_user_store(user_id,store_id):
@@ -36,45 +38,56 @@ error_code = {
 def error_non_exist_user_id(user_id):
     return 511, error_code[511].format(user_id)
 
+
 # 已存在某用户 512 (可能遇到的情况：注册时想要注册此用户名但是已经被占用)
 def error_exist_user_id(user_id):
     return 512, error_code[512].format(user_id)
+
 
 # 不存在某家店铺
 def error_non_exist_store_id(store_id):
     return 513, error_code[513].format(store_id)
 
+
 # 已经存在某家店铺 无法再次进行注册
 def error_exist_store_id(store_id):
     return 514, error_code[514].format(store_id)
 
+
 # 某家店没有卖某本书
 def error_non_exist_book_id(book_id):
-    return 515,  error_code[515].format(book_id)
+    return 515, error_code[515].format(book_id)
+
 
 # 某店铺某图书已经上架 不可重复上架
 def error_exist_book_id(book_id):
-    return 516,  error_code[516].format(book_id)
+    return 516, error_code[516].format(book_id)
+
 
 # 库存不足
 def error_stock_level_low(book_id):
     return 517, error_code[517].format(book_id)
 
+
 # 还没有此订单 因为是先进行创建订单，再进行买家和卖家的钱数变动
 def error_invalid_order_id(order_id):
     return 518, error_code[518].format(order_id)
+
 
 # 余额不足
 def error_not_sufficient_funds(order_id):
     return 519, error_code[518].format(order_id)
 
+
 # 在进行交易时，核对处理对象 不能扣错人的钱或者把钱错加到别人的钱上去
 def error_authorization_fail():
     return 401, error_code[401]
 
+
 # 某家店铺未上架过新书
 def error_store_book_empty(store_id):
     return 531, error_code[531].format(store_id)
+
 
 # 用户输入的页码太大（超过最大页）
 def error_page_num_too_large(user_id):
