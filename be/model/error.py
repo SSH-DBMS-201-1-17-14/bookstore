@@ -10,9 +10,9 @@ error_code = {
     517: "stock level low, book id {}",
     518: "invalid order id {}",
     519: "not sufficient funds, order id {}",
-    520: "",
-    521: "",
-    522: "",
+    520: "non exist user {} has store {}",
+    521: "non exist order {}",
+    522: "pay flag not set, haven't pay",
     523: "",
     524: "",
     525: "",
@@ -68,3 +68,4 @@ def error_authorization_fail():
 # 自定义错误信息
 def error_and_message(code, message):
     return code, message
+# error.error_and_message(520,"non exist user {} has store {}".format(user_id,store_id))

@@ -48,7 +48,11 @@ class Store:
             CREATE TABLE IF NOT EXISTS "new_order" (
                     order_id TEXT PRIMARY KEY, 
                     user_id TEXT, 
-                    store_id TEXT
+                    store_id TEXT,
+                    pay INTEGER,
+                    deliver INTEGER ,
+                    receive INTEGER,
+                    order_time FLOAT 
             )
             """,
             """

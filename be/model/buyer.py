@@ -57,16 +57,17 @@ class Buyer(db_conn.DBConn):
                     "VALUES (%s, %s, %s, %s)",
                     (uid, book_id, count, price))
 
-
+            current_time=time.time()
             cursor.execute(
-                "INSERT INTO \"new_order\" (order_id, store_id, user_id) VALUES(%s,%s,%s)" ,(
-                    uid, store_id, user_id))
+                "INSERT INTO \"new_order\" (order_id, store_id, user_id,pay,deliver,receive,order_time) VALUES(%s,%s,%s,%s,%s,%s,%s)" ,(
+                    uid, store_id, user_id,0,0,0,current_time))
 
             order_id = uid
             self.conn.commit()
             cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as e:
+            print(e)
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
@@ -133,13 +134,17 @@ class Buyer(db_conn.DBConn):
             if cursor.rowcount == 0:
                 return error.error_non_exist_user_id( seller_id )
 
-            cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id, ))
+            cursor.execute("UPDATE \"new_order\" SET pay=1 WHERE order_id=(%s)",(order_id,))
             if cursor.rowcount == 0:
                 return error.error_invalid_order_id(order_id)
 
-            cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
-            if cursor.rowcount == 0:
-                return error.error_invalid_order_id(order_id)
+            # cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id, ))
+            # if cursor.rowcount == 0:
+            #     return error.error_invalid_order_id(order_id)
+            #
+            # cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
+            # if cursor.rowcount == 0:
+            #     return error.error_invalid_order_id(order_id)
 
             self.conn.commit()
             cursor.close()

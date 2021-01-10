@@ -48,3 +48,25 @@ class DBConn:
             return False
         else:
             return True
+
+    # 是否存在某个订单
+    def order_id_exist(self,order_id):
+        cur=self.conn.cursor()
+        cur.execute("select * from \"new_order\" where order_id=(%s)",(order_id,))
+        row=cur.fetchone()
+        cur.close()
+        if row is None:
+            return False
+        else:
+            return True
+
+    # 某订单付款位是否已经置为1
+    def pay_flag_set(self,order_id):
+        cur=self.conn.cursor()
+        cur.execute("select * from \"new_order\" where order_id=(%s) and pay=1",(order_id,))
+        row = cur.fetchone()
+        cur.close()
+        if row is None:
+            return False
+        else:
+            return True
