@@ -2,10 +2,10 @@ import random
 import base64
 import psycopg2
 import logging
-from bookstore.be.model import db_conn
-from bookstore.fe.access import book
-from bookstore.fe import conf
-import bookstore.be.model.store as store
+from be.model import db_conn
+from fe.access import book
+from fe import conf
+import be.model.store as store
 import jieba
 import re
 
