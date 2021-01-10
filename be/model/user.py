@@ -256,7 +256,7 @@ class User(db_conn.DBConn):
             # 对用户的搜索进行分词，获得关键词列表
             keyword_term = self.split_user_input(search_info)
             # 获得 book_id 对应的包含关键词个数以及其分词后的长度
-            bookdb = intial_search.BookSplit(False, store_id)
+            bookdb = initial_search.BookSplit(False, store_id)
             dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content = bookdb.inverted_index()
             # 获得 book_id 对应 其包含关键词个数 的字典
             book_id_keyword_count = self.find_ids(keyword_term,dict_split_title)
@@ -278,7 +278,7 @@ class User(db_conn.DBConn):
             # 对用户的搜索进行分词，获得关键词列表
             keyword_term = self.split_user_input(search_info)
             # 获得 book_id 对应的包含关键词个数以及其分词后的长度
-            bookdb = intial_search.BookSplit(False, store_id)
+            bookdb = initial_search.BookSplit(False, store_id)
             dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content = bookdb.inverted_index()
             # 获得 book_id 对应 其包含关键词个数 的字典
             book_id_keyword_count = self.find_ids(keyword_term, dict_split_book_intro)
@@ -300,7 +300,7 @@ class User(db_conn.DBConn):
             # 对用户的搜索进行分词，获得关键词列表
             keyword_term = self.split_user_input(search_info)
             # 获得 book_id 对应的包含关键词个数以及其分词后的长度
-            bookdb = intial_search.BookSplit(False, store_id)
+            bookdb = initial_search.BookSplit(False, store_id)
             dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content = bookdb.inverted_index()
             # 获得 book_id 对应 其包含关键词个数 的字典
             book_id_keyword_count = self.find_ids(keyword_term, dict_split_content)
