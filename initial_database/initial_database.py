@@ -107,7 +107,7 @@ class BookPostgresql:
         try:
             print ("Opened database successfully")
             cur = conn.cursor()
-            cur.execute('''CREATE TABLE IF NOT EXISTS "book_info"
+            cur.execute('''CREATE TABLE IF NOT EXISTS "book"
                    (id TEXT PRIMARY KEY,
                    title  TEXT,
                    author TEXT,
@@ -130,7 +130,7 @@ class BookPostgresql:
             # 导入数据
             for one_book_info in whole_book_info:
                 cur.execute(
-                    "INSERT INTO book_info(id,title,author,publisher,original_title,translator,pub_year,pages,price,currency_unit,binding,isbn,author_intro,book_intro,content,tags) "
+                    "INSERT INTO book(id,title,author,publisher,original_title,translator,pub_year,pages,price,currency_unit,binding,isbn,author_intro,book_intro,content,tags) "
                     "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                     (one_book_info.id, one_book_info.title, one_book_info.author, one_book_info.publisher,
                      one_book_info.original_title,
