@@ -68,5 +68,15 @@ class DBConn:
         cur.close()
         if row is None:
             return False
+
+    # 某家店铺是否未上架过新书
+    def store_book_empty(self, store_id):
+        cur = self.conn.cursor()
+        cur.execute("SELECT store_id FROM \"store\" WHERE store_id =  (%s) ", (store_id,))
+
+        row = cur.fetchone()
+        cur.close()
+        if row is None:
+            return False
         else:
             return True

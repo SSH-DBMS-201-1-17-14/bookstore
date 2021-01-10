@@ -75,16 +75,16 @@ class Seller(db_conn.DBConn):
                 if not self.user_id_exist(user_id):
                     return error.error_non_exist_user_id(user_id)
                 else:
-                    return error.error_and_message(521,error.error_code[521].format(order_id))
+                    return error.error_and_message(522,error.error_code[522].format(order_id))
             cursor=self.conn.cursor()
             cursor.execute("select store_id,pay from \"new_order\" where order_id=(%s)",(order_id,))
             row=cursor.fetchone()
             store_id=row[0]
             pay=row[1]
             if not self.user_store_exist(user_id,store_id):
-                return error.error_and_message(520,error.error_code[520].format(user_id,store_id))
+                return error.error_and_message(521,error.error_code[521].format(user_id,store_id))
             if not pay==1:
-                return error.error_and_message(522,error.error_code[522])
+                return error.error_and_message(523,error.error_code[523])
 
             cursor.execute("UPDATE \"new_order\" SET deliver=1 WHERE order_id=(%s)", (order_id,))
             self.conn.commit()

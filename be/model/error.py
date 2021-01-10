@@ -10,9 +10,12 @@ error_code = {
     517: "stock level low, book id {}",
     518: "invalid order id {}",
     519: "not sufficient funds, order id {}",
-    520: "non exist user {} has store {}",
-    521: "non exist order {}",
-    522: "pay flag not set, haven't pay",
+    520: "no book in the store, store id {}",
+    521: "non exist user {} has store {}",
+    522: "non exist order {}",
+    523: "pay flag not set, haven't pay",
+    521: "",
+    522: "",
     523: "",
     524: "",
     525: "",
@@ -64,6 +67,10 @@ def error_not_sufficient_funds(order_id):
 # 在进行交易时，核对处理对象 不能扣错人的钱或者把钱错加到别人的钱上去
 def error_authorization_fail():
     return 401, error_code[401]
+
+# 某家店铺未上架过新书
+def error_store_book_empty(user_id):
+    return 521, error_code[521].format(user_id)
 
 # 自定义错误信息
 def error_and_message(code, message):
