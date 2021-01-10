@@ -2,10 +2,10 @@ import random
 import base64
 import psycopg2
 import logging
-from bookstore.be.model import db_conn
-from bookstore.fe.access import book
-from bookstore.fe import conf
-import bookstore.be.model.store as store
+from be.model import db_conn
+from fe.access import book
+from fe import conf
+import be.model.store as store
 import jieba
 import re
 
@@ -34,7 +34,7 @@ class Book:
 
 # 对题目、目录、内容进行分词，构建倒排索引表
 class BookSplit(db_conn.DBConn):
-    def __init__(self,global_store: bool = True,store_id:int = -1):
+    def __init__(self,global_store: bool = True,store_id:str = "ok"):
         # 创建实例init_database
         store.init_database("aaa")
         db_conn.DBConn.__init__(self)
@@ -58,17 +58,17 @@ class BookSplit(db_conn.DBConn):
             size = self.book_db.get_book_count()
             if self.global_store:
                 # 读取全部的表 book_info 信息
-                query = "SELECT id, title, author, publisher, original_title, " + "translator, pub_year, pages, price, currency_unit, binding, " + "isbn, author_intro, book_intro, content, tags FROM " + self.book_db.table + " ORDER BY id LIMIT " + str(
-                    size) + " OFFSET " + str(start)
+                query="SELECT id, title, author, publisher, original_title, translator, pub_year, pages, price, currency_unit, binding, isbn, author_intro, book_intro, content, tags FROM {} ORDER BY id LIMIT {} OFFSET {}".format(self.book_db.table,size,start)
                 cursor.execute(query)
             else:
                 # 获得店铺 id 对应的 book_id（调用函数前先判断是否存在这个店家）
-                cursor.execute("SELECT store_id, book_id FROM \"store\" WHERE store_id = (%s)",(str(self.store_id),))
+                cursor.execute("SELECT store_id, book_id FROM \"store\" WHERE store_id = (%s)",(self.store_id,))
                 book_id = []
                 for row in cursor:
                     book_id.append(row[1])
-                cursor.execute("SELECT id, title, author, publisher, original_title," + "translator, pub_year, pages, price, currency_unit, binding, "+ "isbn, author_intro, book_intro, content, tags FROM " + self.book_db.table + " WHERE id = ANY (%s) ORDER BY id LIMIT " + str(
-                    size) + " OFFSET " + str(start),(book_id,))
+                query = "SELECT id, title, author, publisher, original_title, translator, pub_year, pages, price, currency_unit, binding, isbn, author_intro, book_intro, content, tags FROM {} WHERE id IN {} ORDER BY id LIMIT {} OFFSET {}".format(
+                    self.book_db.table,tuple(book_id), size, start)
+                cursor.execute(query)
             # cursor.execute(
             #     "SELECT id, title, author, "
             #     "publisher, original_title, "
@@ -179,10 +179,11 @@ class BookSplit(db_conn.DBConn):
                         "VALUES(%s,%s,%s,%s)",
                         (book_id,freq_split_title[book_id],freq_split_book_intro[book_id],freq_split_content[book_id]))
                     self.conn.commit()
-                return "ok"
+                return self.store_id
             else:
                 # 若根据店铺进行搜索，由于每个店铺构建一个倒排索引表数量过多，选择每次检索，根据店铺 id 构建一次倒排索引表
-                return dict_split_title, dict_split_book_intro, dict_split_content
+                print(dict_split_content)
+                return dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             logging.error(error)
@@ -193,6 +194,6 @@ class BookSplit(db_conn.DBConn):
 
 
 if __name__ == '__main__':
-    bookdb = BookSplit(False,50000)
+    bookdb = BookSplit(True)
     # 对于全局索引进行初始表格构建以及数据插入
     bookdb.inverted_index()
