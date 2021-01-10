@@ -73,8 +73,8 @@ def error_authorization_fail():
     return 401, error_code[401]
 
 # 某家店铺未上架过新书
-def error_store_book_empty(user_id):
-    return 531, error_code[531].format(user_id)
+def error_store_book_empty(store_id):
+    return 531, error_code[531].format(store_id)
 
 # 用户输入的页码太大（超过最大页）
 def error_page_num_too_large(user_id):
