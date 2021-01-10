@@ -14,14 +14,18 @@ error_code = {
     521: "non exist user {} has store {}",
     522: "non exist order {}",
     523: "pay flag not set, haven't pay",
-    521: "",
-    522: "",
-    523: "",
     524: "",
     525: "",
     526: "",
     527: "",
     528: "",
+    529: "",
+    530: "",
+    531: "the store sell no book,store id {}",
+    532: "the page num the user inputs is too large, user id {}",
+    533: "",
+    534: "",
+    535: "",
 }
 
 # 不存在此用户拥有这个店铺
@@ -69,8 +73,13 @@ def error_authorization_fail():
     return 401, error_code[401]
 
 # 某家店铺未上架过新书
-def error_store_book_empty(user_id):
-    return 521, error_code[521].format(user_id)
+def error_store_book_empty(store_id):
+    return 531, error_code[531].format(store_id)
+
+# 用户输入的页码太大（超过最大页）
+def error_page_num_too_large(user_id):
+    return 532, error_code[532].format(user_id)
+
 
 # 自定义错误信息
 def error_and_message(code, message):
