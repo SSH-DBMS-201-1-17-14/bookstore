@@ -264,16 +264,16 @@ class User(db_conn.DBConn):
             # 获得 book_id 对应 其包含关键词个数 的字典
             book_id_keyword_count = self.find_ids(keyword_term,dict_split_title)
             # 获得对应页数的 book_id
-            book_id = self.sort_id_importance(book_id_keyword_count,freq_split_title,page)
+            book_id = self.sort_id_importance_pagek(book_id_keyword_count,freq_split_title,page)
             if len(book_id) == 0:
-                return error.error_page_out_of_range(user_id) + (store_id,)
+                return error.error_page_out_of_range(user_id) + (store_id, )
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e)),""
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)), ""
-        return 200, "ok", book_id
+            return 530, "{}".format(str(e)),""
+        return 200, "ok",book_id
 
     def store_search_book_intro(self,user_id: str,store_id: str,search_info: str,page:int):
         try:
@@ -291,7 +291,7 @@ class User(db_conn.DBConn):
             # 获得 book_id 对应 其包含关键词个数 的字典
             book_id_keyword_count = self.find_ids(keyword_term, dict_split_book_intro)
             # 获得对应页数的 book_id
-            book_id = self.sort_id_importance(book_id_keyword_count, freq_split_book_intro, page)
+            book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_book_intro, page)
             if len(book_id) == 0:
                 return error.error_page_out_of_range(user_id) + (store_id,)
         except (Exception, psycopg2.DatabaseError) as e:
@@ -318,7 +318,7 @@ class User(db_conn.DBConn):
             # 获得 book_id 对应 其包含关键词个数 的字典
             book_id_keyword_count = self.find_ids(keyword_term, dict_split_content)
             # 获得对应页数的 book_id
-            book_id = self.sort_id_importance(book_id_keyword_count, freq_split_content, page)
+            book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_content, page)
             if len(book_id) == 0:
                 return error.error_page_out_of_range(user_id) + (store_id,)
         except (Exception, psycopg2.DatabaseError) as e:
