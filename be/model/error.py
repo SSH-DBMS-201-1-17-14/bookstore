@@ -90,7 +90,7 @@ def error_store_book_empty(store_id):
 
 
 # 用户输入的页码太大（超过最大页）
-def error_page_num_too_large(user_id):
+def error_page_out_of_range(user_id):
     return 532, error_code[532].format(user_id)
 
 
