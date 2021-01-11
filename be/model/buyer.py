@@ -248,3 +248,32 @@ class Buyer(db_conn.DBConn):
         except BaseException as e:
             return 530, "{}".format(str(e)),{},
         return 200, "ok",history_orders
+
+    def cancel_order(self,user_id,password,order_id)->(int,str):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT password  from \"user\" where user_id= (%s)", (user_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return error.error_non_exist_user_id(user_id)
+
+            if row[0] != password:
+                return error.error_authorization_fail()
+
+            if not self.order_id_exist(order_id):
+                return error.error_and_message(522,error.error_code[522].format(order_id))
+
+            if not self.buyer_order_exist(user_id,order_id):
+                return error.error_and_message(541,error.error_code[541].format(order_id,user_id))
+
+            if self.pay_flag_set(order_id):
+                return error.error_and_message(543,error.error_code[543].format(order_id))
+
+            cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id, ))
+            cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as e:
+            return 528, "{}".format(str(e)),
+        except BaseException as e:
+            return 530, "{}".format(str(e)),
+        return 200, "ok"

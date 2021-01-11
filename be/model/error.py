@@ -26,7 +26,8 @@ error_code = {
     534: "",
     535: "",
     541: "order {} doesn't belong to user {} ",
-    542: "order {} hasn't been deliverd"
+    542: "order {} hasn't been deliverd",
+    543: "order {} pay flag set, can't cancel"
 }
 
 

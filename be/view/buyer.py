@@ -57,3 +57,12 @@ def query_history_order():
     b=Buyer()
     code,message,order_dict=b.query_history_order(user_id,password)
     return jsonify({"message":message,"history_order":order_dict}),code
+
+@bp_buyer.route("/cancel_order",methods=["POST"])
+def cancel_order():
+    user_id: str = request.json.get("user_id")
+    password: str = request.json.get("password")
+    order_id: str = request.json.get("order_id")
+    b=Buyer()
+    code,message=b.cancel_order(user_id,password,order_id)
+    return jsonify({"message": message}), code
