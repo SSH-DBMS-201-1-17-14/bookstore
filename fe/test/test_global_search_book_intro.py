@@ -26,26 +26,12 @@ class TestGlobal_search_book_intro:
         self.password = "password_" + self.user_id
         self.terminal = "terminal_" + self.user_id
         assert self.auth.register(self.user_id, self.password) == 200
-
-        # # 注册一个店铺，添加所有书
-        # self.another_user_id = "test_store_search_title_store_id_2_{}".format(time.time())
-        # self.seller = register_new_seller(self.another_user_id, self.password)
-        # self.store_id = "test_store_search_title_store_id_{}".format(str(uuid.uuid1()))
-        # assert self.seller.create_store(self.store_id) == 200
-        #
-        # # 对其增加库存（100本书）
-        # book_db = book.BookDB()
-        # self.books = book_db.get_book_info(0, 100)
-        # for b in self.books:
-        #     code = self.seller.add_book(self.store_id, 0, b)
-        #     assert code == 200
-
         self.search_info = '一个女生的自白'  # 查询的book_intro
         self.page = 1
         yield
 
     def test_ok_global_search_book_intro(self):
-        code  = self.auth.global_search_title(self.user_id, self.search_info,self.page)
+        code  = self.auth.global_search_book_intro(self.user_id, self.search_info,self.page)
         assert code == 200
 
     # 测试用户不存在

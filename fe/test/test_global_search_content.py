@@ -14,22 +14,22 @@ class TestGlobal_search_content:
         self.terminal = "terminal_" + self.user_id
         assert self.auth.register(self.user_id, self.password) == 200
 
-        self.search_info = '一个女生的自白'  # 查询的content
+        self.search_info = '一个 女生的自白\n'  # 查询的content
         self.page = 1
         yield
 
     def test_global_search_content(self):
-        code = self.auth.global_search_title(self.user_id, self.search_info,self.page)
+        code = self.auth.global_search_content(self.user_id, self.search_info,self.page)
         assert code == 200
 
     # 测试用户不存在
     def test_error_non_user_id(self):
         user_id = self.user_id + "_x"
-        code = self.auth.global_search_book_intro(user_id, self.search_info, self.page)
+        code = self.auth.global_search_content(user_id, self.search_info, self.page)
         assert code == 511
 
     #测试用户输入页码太大
     def test_error_page_too_large(self):
         large_page = 20
-        code = self.auth.global_search_book_intro(self.user_id, self.search_info, large_page)
+        code = self.auth.global_search_content(self.user_id, self.search_info, large_page)
         assert code == 532
