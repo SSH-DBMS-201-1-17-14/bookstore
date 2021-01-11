@@ -22,7 +22,7 @@ error_code = {
     530: "",
     531: "the store sell no book,store id {}",
     532: "the page num the user inputs is too large, user id {}",
-    533: "",
+    533: "when search, non exist user id {}",
     534: "",
     535: "",
     541: "order {} doesn't belong to user {} ",
@@ -87,12 +87,16 @@ def error_authorization_fail():
 
 # 某家店铺未上架过新书
 def error_store_book_empty(store_id):
-    return 531, error_code[531].format(store_id)
+    return 531, error_code[531].format(store_id)," "
 
 
 # 用户输入的页码太大（超过最大页）
 def error_page_out_of_range(user_id):
-    return 532, error_code[532].format(user_id)
+    return 532, error_code[532].format(user_id)," "
+
+
+def error_non_exist_user_id_when_search(user_id):
+    return 533, error_code[533].format(user_id), " "
 
 
 # 自定义错误信息

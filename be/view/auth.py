@@ -59,8 +59,8 @@ def store_search_title():
     search_info = request.json.get("search_info","")
     page = request.json.get("page","")
     u = user.User()
-    code, message = u.store_search_title(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
-    return jsonify({"message": message}), code
+    code, message, book_id= u.store_search_title(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
 
 @bp_auth.route("/store_search_book_intro", methods=["POST"])
 def store_search_book_intro():
@@ -69,8 +69,8 @@ def store_search_book_intro():
     search_info = request.json.get("search_info","")
     page = request.json.get("page","")
     u = user.User()
-    code, message = u.store_search_book_intro(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
-    return jsonify({"message": message}), code
+    code, message, book_id = u.store_search_book_intro(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
 
 @bp_auth.route("/store_search_content", methods=["POST"])
 def store_search_content():
@@ -79,8 +79,8 @@ def store_search_content():
     search_info = request.json.get("search_info","")
     page = request.json.get("page","")
     u = user.User()
-    code, message = u.store_search_content(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
-    return jsonify({"message": message}), code
+    code, message, book_id = u.store_search_content(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
 
 @bp_auth.route("/global_search_title", methods=["POST"])
 def global_search_title():
@@ -88,8 +88,8 @@ def global_search_title():
     search_info = request.json.get("search_info","")
     page = request.json.get("page","")
     u = user.User()
-    code, message = u.global_search_title(user_id=user_id,search_info = search_info,page = page)
-    return jsonify({"message": message}), code
+    code, message , book_id = u.global_search_title(user_id=user_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
 
 @bp_auth.route("/global_search_book_intro", methods=["POST"])
 def global_search_book_intro():
@@ -97,8 +97,8 @@ def global_search_book_intro():
     search_info = request.json.get("search_info","")
     page = request.json.get("page","")
     u = user.User()
-    code, message = u.global_search_book_intro(user_id=user_id,search_info = search_info,page = page)
-    return jsonify({"message": message}), code
+    code, message, book_id = u.global_search_book_intro(user_id=user_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
 
 @bp_auth.route("/global_search_content", methods=["POST"])
 def global_search_content():
@@ -106,5 +106,5 @@ def global_search_content():
     search_info = request.json.get("search_info","")
     page = request.json.get("page","")
     u = user.User()
-    code, message = u.global_search_content(user_id=user_id,search_info = search_info,page = page)
-    return jsonify({"message": message}), code
+    code, message, book_id = u.global_search_content(user_id=user_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
