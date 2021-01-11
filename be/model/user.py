@@ -9,7 +9,7 @@ import psycopg2
 import jieba
 import re
 from math import ceil
-
+import traceback
 # encode a json string like:
 #   {
 #       "user_id": [user name],
@@ -82,6 +82,7 @@ class User(db_conn.DBConn):
                 (user_id, password, 0, token, terminal))
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError):
+            traceback.print_exc()
             return error.error_exist_user_id(user_id)
         cursor.close()
         return 200, "ok"
@@ -127,6 +128,7 @@ class User(db_conn.DBConn):
             self.conn.commit()
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
+            traceback.print_exc()
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
             return 530, "{}".format(str(e)), ""
@@ -150,6 +152,7 @@ class User(db_conn.DBConn):
             self.conn.commit()
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as e:
+            traceback.print_exc()
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
