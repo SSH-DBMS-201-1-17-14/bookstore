@@ -1,19 +1,10 @@
-import time
-from fe.access import auth
-import pytest
-from fe.access.new_seller import register_new_seller
-from fe.test.gen_book_data import GenBook
-import uuid
-from fe.access.new_buyer import register_new_buyer
-from fe.access.book import Book
-from fe import conf
 import pytest
 import time
-import uuid
+
 from fe.access import auth
-from fe.access.new_seller import register_new_seller
+
 from fe import conf
-from fe.access import book
+
 
 
 
