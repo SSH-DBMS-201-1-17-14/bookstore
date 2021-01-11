@@ -49,3 +49,11 @@ def deliver():
     b=Buyer()
     code,message=b.receive(user_id,order_id)
     return jsonify({"message": message}), code
+
+@bp_buyer.route("/query_history_order",methods=["GET"])
+def query_history_order():
+    user_id:str=request.json.get("user_id")
+    password:str=request.json.get("password")
+    b=Buyer()
+    code,message,order_dict=b.query_history_order(user_id,password)
+    return jsonify({"message":message,"history_order":order_dict}),code

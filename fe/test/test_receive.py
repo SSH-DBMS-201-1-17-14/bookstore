@@ -10,8 +10,8 @@ class Testreceive:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):
         # 创建一个用户，开一家店
-        self.seller_id = "test_deliver_seller_id_{}".format(str(uuid.uuid1()))
-        self.store_id = "test_deliver_store_id_{}".format(str(uuid.uuid1()))
+        self.seller_id = "test_receive_seller_id_{}".format(str(uuid.uuid1()))
+        self.store_id = "test_receive_store_id_{}".format(str(uuid.uuid1()))
         self.password = self.seller_id
         gen_book = GenBook(self.seller_id, self.store_id)
         ok, buy_book_id_list = gen_book.gen(non_exist_book_id=False, low_stock_level=False, max_book_count=5)
@@ -19,7 +19,7 @@ class Testreceive:
         assert ok
         self.seller = gen_book.get_seller()
 
-        self.buyer_id = "test_deliver_buyer_id_{}".format(str(uuid.uuid1()))
+        self.buyer_id = "test_receive_buyer_id_{}".format(str(uuid.uuid1()))
         buyer1 = register_new_buyer(self.buyer_id, self.password)
         self.buyer = buyer1
         self.another_buyer_id = self.buyer_id + "_another"

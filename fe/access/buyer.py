@@ -51,3 +51,12 @@ class Buyer:
         r=requests.post(url,headers=headers,json=json)
         return r.status_code
 
+    def query_history_order(self,user_id:str,password:str):
+        json={
+            "user_id":user_id,
+            "password":password
+        }
+        url=urljoin(self.url_prefix,"query_history_order")
+        headers={"token":self.token}
+        r=requests.get(url,headers=headers,json=json)
+        return r.status_code

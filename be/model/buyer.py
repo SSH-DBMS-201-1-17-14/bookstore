@@ -162,7 +162,7 @@ class Buyer(db_conn.DBConn):
             cursor.execute("SELECT password  from \"user\" where user_id= (%s)", (user_id,))
             row = cursor.fetchone()
             if row is None:
-                return error.error_authorization_fail()
+                return error.error_non_exist_user_id(user_id)
 
             if row[0] != password:
                 return error.error_authorization_fail()
@@ -201,4 +201,50 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e)),
         return 200, "ok"
 
+    def query_history_order(self,user_id,password)->(int,str,dict):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT password  from \"user\" where user_id= (%s)", (user_id,))
+            row = cursor.fetchone()
+            if row is None:
+                code,message=error.error_non_exist_user_id(user_id)
+                return code,message,{}
 
+            if row[0] != password:
+                code, message =error.error_authorization_fail()
+                return code,message,{}
+        ################
+            history_orders={}
+            # query = "SELECT * FROM new_order join new_order_detail on new_order.order_id=new_order_detail.order_id where new_order.\"user_id\"={}".format(user_id)
+            # cursor.execute(query)
+            cursor.execute("select * from \"new_order\" inner join \"new_order_detail\" on \"new_order\".order_id=\"new_order_detail\".order_id where \"new_order\".user_id=(%s)",(user_id,))
+            rows=cursor.fetchall()
+            if rows is not None:
+                for row in rows:
+                    order_id=row[0]
+                    book_id = row[6]
+                    count = row[7]
+                    price = row[8]
+                    if(order_id not in history_orders.keys()):
+                        store_id = row[2]
+                        pay = row[3]
+                        deliver = row[4]
+                        receive = row[5]
+                        if(receive):
+                            status="已收货"
+                        elif(deliver):
+                            status="已发货"
+                        elif(pay):
+                            status="已付款"
+                        else:
+                            status="未付款"
+                        history_orders[order_id]={"store_id":store_id,"status":status,"books":{book_id:[price,count]},"amount":price*count}
+                    else:
+                        history_orders[order_id]["books"][book_id]=[price,count]
+                        history_orders[order_id]["amount"]+=price*count
+        except (Exception, psycopg2.DatabaseError) as e:
+            print(e)
+            return 528, "{}".format(str(e)),{},
+        except BaseException as e:
+            return 530, "{}".format(str(e)),{},
+        return 200, "ok",history_orders
