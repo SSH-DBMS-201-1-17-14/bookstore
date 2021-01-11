@@ -108,3 +108,23 @@ def global_search_content():
     u = user.User()
     code, message, book_id = u.global_search_content(user_id=user_id,search_info = search_info,page = page)
     return jsonify({"message": message,"book_id":book_id}), code
+
+@bp_auth.route("/global_search_tag", methods=["POST"])
+def global_search_tag():
+    user_id = request.json.get("user_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
+    u = user.User()
+    code, message, book_id = u.global_search_tag(user_id=user_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code
+
+
+@bp_auth.route("/store_search_tag", methods=["POST"])
+def store_search_tag():
+    user_id = request.json.get("user_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
+    store_id=request.json.get("store_id","")
+    u = user.User()
+    code, message, book_id = u.store_search_tag(user_id=user_id,store_id=store_id,search_info = search_info,page = page)
+    return jsonify({"message": message,"book_id":book_id}), code

@@ -189,7 +189,24 @@ class Search(db_conn.DBConn):
             for the_book_id in dict_tag.keys():
                 if dict_tag[the_book_id] == len(tag_search):
                     book_list.append(the_book_id)
-            return book_list
+            id_n = len(book_list)
+            # print('.........id_n......... = %d'%id_n)
+            pages_num = ceil(id_n / 10 * 1.0)  # 共有pages_num
+            # print('.........pages_num......... = %d'%pages_num)
+            # 输入页码超过最大页数,输出空列表
+            if self.page > pages_num:
+                return []
+            # 输入页码小于等于最大页数
+            # 分页 第k页：下标（从0开始）  ： 10*(k-1) 到 k*10-1
+            start = 10 * (self.page - 1)
+            end = self.page * 10 - 1
+            # 如果是最后一页,不一定能输10个，只能输出到最后一个
+            if self.page == pages_num:
+                end = id_n - 1
+            id_l = []  # 最后输出的id
+            for i in range(start, end + 1):
+                id_l.append(book_list[i][0])
+            return id_l
         except (Exception, psycopg2.DatabaseError) as error:
             logging.error(error)
             self.conn.rollback()

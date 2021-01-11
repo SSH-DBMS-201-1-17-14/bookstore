@@ -13,9 +13,9 @@ class Auth:
         return r.status_code, r.json().get("token")
 
     def register(
-        self,
-        user_id: str,
-        password: str
+            self,
+            user_id: str,
+            password: str
     ) -> int:
         json = {
             "user_id": user_id,
@@ -50,51 +50,69 @@ class Auth:
 
     def store_search_title(self, user_id: str, store_id: str, search_info: str, page: int) -> int:
         json = {"user_id": user_id,
-            "store_id": store_id,
-            "search_info": search_info,
-            "page": page}
+                "store_id": store_id,
+                "search_info": search_info,
+                "page": page}
         url = urljoin(self.url_prefix, "store_search_title")
         r = requests.post(url, json=json)
         return r.status_code
 
     def store_search_book_intro(self, user_id: str, store_id: str, search_info: str, page: int) -> int:
         json = {"user_id": user_id,
-            "store_id": store_id,
-            "search_info": search_info,
-            "page": page}
+                "store_id": store_id,
+                "search_info": search_info,
+                "page": page}
         url = urljoin(self.url_prefix, "store_search_book_intro")
         r = requests.post(url, json=json)
         return r.status_code
 
     def store_search_content(self, user_id: str, store_id: str, search_info: str, page: int) -> int:
         json = {"user_id": user_id,
-            "store_id": store_id,
-            "search_info": search_info,
-            "page": page}
+                "store_id": store_id,
+                "search_info": search_info,
+                "page": page}
         url = urljoin(self.url_prefix, "store_search_content")
         r = requests.post(url, json=json)
         return r.status_code
 
     def global_search_title(self, user_id: str, search_info: str, page: int) -> int:
         json = {"user_id": user_id,
-            "search_info": search_info,
-            "page": page}
+                "search_info": search_info,
+                "page": page}
         url = urljoin(self.url_prefix, "global_search_title")
         r = requests.post(url, json=json)
         return r.status_code
 
     def global_search_book_intro(self, user_id: str, search_info: str, page: int) -> int:
         json = {"user_id": user_id,
-            "search_info": search_info,
-            "page": page}
+                "search_info": search_info,
+                "page": page}
         url = urljoin(self.url_prefix, "global_search_book_intro")
         r = requests.post(url, json=json)
         return r.status_code
 
     def global_search_content(self, user_id: str, search_info: str, page: int) -> int:
         json = {"user_id": user_id,
-            "search_info": search_info,
-            "page": page}
+                "search_info": search_info,
+                "page": page}
         url = urljoin(self.url_prefix, "global_search_content")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+
+    def global_search_tag(self, user_id: str, search_info: str, page: int) -> int:
+        json = {"user_id": user_id,
+                "search_info": search_info,
+                "page": page}
+        url = urljoin(self.url_prefix, "global_search_tag")
+        r = requests.post(url, json=json)
+        return r.status_code
+
+    def store_search_tag(self, user_id: str, store_id: str, search_info: str, page: int) -> int:
+        json = {"user_id": user_id,
+                "search_info": search_info,
+                "store_id": store_id,
+                "page": page}
+        url = urljoin(self.url_prefix, "store_search_tag")
         r = requests.post(url, json=json)
         return r.status_code

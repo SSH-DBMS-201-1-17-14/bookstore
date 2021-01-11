@@ -458,18 +458,15 @@ class User(db_conn.DBConn):
             return 530, "{}".format(str(e))," "
         return 200, "ok",book_list
 
-    def global_search_tag(self, user_id: str, store_id: str, search_info: str, page: int):
+    def global_search_tag(self, user_id: str, search_info: str, page: int):
         try:
-            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
-            if not self.store_book_empty(store_id):
-                return error.error_store_book_empty(store_id)
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
             # 进行查询
             cursor = self.conn.cursor()
             # query =
-            cursor.execute("SELECT book_id FROM \"store\" ", (store_id,))
+            cursor.execute("SELECT book_id FROM \"store\" ")
             book_id = []
             rows = cursor.fetchall()
             for row in rows:

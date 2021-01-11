@@ -34,22 +34,18 @@ class TestGlobalSearchTag:
         yield
 
     def test_global_search_tag_ok(self):
-        code = self.auth.global_search_tag(self.user_id, self.store_id, self.search_info, self.page)
+        code = self.auth.global_search_tag(self.user_id,self.search_info, self.page)
         assert code == 200
 
     # 用户的 id 不存在
     def test_error_user_id(self):
-        code = self.auth.global_search_tag(self.user_id + "_x", self.store_id, self.search_info,self.page)
+        code = self.auth.global_search_tag(self.user_id + "_x", self.search_info,self.page)
         assert code == 533
-
-    # 店铺未上架过新书（这里使用店铺的 id 不存在进行测试）
-    def test_non_exist_store_id(self):
-        code = self.auth.global_search_tag(self.user_id, self.store_id + "_x", self.search_info, self.page)
-        assert code == 531
 
     # 测试用户输入页码太大
     def test_error_page_too_large(self):
-        code = self.auth.global_search_tag(self.user_id, self.store_id, self.search_info, self.large_page)
+
+        code = self.auth.global_search_tag(self.user_id, self.search_info, self.large_page)
         assert code == 532
 
 
