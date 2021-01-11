@@ -268,14 +268,14 @@ class User(db_conn.DBConn):
             # 获得对应页数的 book_id
             book_id = self.sort_id_importance_pagek(book_id_keyword_count,freq_split_title,page)
             if len(book_id) == 0:
-                return error.error_page_out_of_range(user_id) + (store_id, )
+                return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)),""
+            return 528, "{}".format(str(e))
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)),""
-        return 200, "ok",book_id
+            return 530, "{}".format(str(e))
+        return 200, "ok"
 
     def store_search_book_intro(self,user_id: str,store_id: str,search_info: str,page:int):
         try:
@@ -295,13 +295,13 @@ class User(db_conn.DBConn):
             # 获得对应页数的 book_id
             book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_book_intro, page)
             if len(book_id) == 0:
-                return error.error_page_out_of_range(user_id) + (store_id,)
+                return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e))
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)), ""
+            return 530, "{}".format(str(e))
         return 200, "ok", book_id
 
     def store_search_content(self,user_id: str,store_id: str,search_info: str,page:int):
@@ -322,14 +322,14 @@ class User(db_conn.DBConn):
             # 获得对应页数的 book_id
             book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_content, page)
             if len(book_id) == 0:
-                return error.error_page_out_of_range(user_id) + (store_id,)
+                return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e))
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)), ""
-        return 200, "ok", book_id
+            return 530, "{}".format(str(e))
+        return 200, "ok"
 
     def global_search_title(self,user_id: str,search_info:str,page:int):
         # 先对搜索内容进行分词，获得关键词
