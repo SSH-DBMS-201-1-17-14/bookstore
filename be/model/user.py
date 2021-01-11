@@ -366,10 +366,10 @@ class User(db_conn.DBConn):
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e))
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)), ""
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
     def global_search_book_intro(self,user_id: str,search_info:str,page:int):
@@ -449,10 +449,10 @@ class User(db_conn.DBConn):
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e)), ""
+            return 528, "{}".format(str(e))
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e)), ""
+            return 530, "{}".format(str(e))
         return 200, "ok"
 
 
