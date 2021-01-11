@@ -9,7 +9,7 @@ class Store:
     user:str
     password:str
 
-    def __init__(self,path):
+    def __init__(self):
         self.database="bookstore"
         self.host="localhost"
         self.user="postgres"
@@ -91,9 +91,9 @@ class Store:
 database_instance: Store = None
 
 
-def init_database(path):
+def init_database():
     global database_instance
-    database_instance = Store(path)
+    database_instance = Store()
 
 
 def get_db_conn():

@@ -2,17 +2,32 @@ import sqlite3 as sqlite
 import uuid
 import json
 import logging
-from be.model import db_conn
-from be.model import error
-
-import jwt
-import time
-import logging
 import sqlite3 as sqlite
 from be.model import error
 from be.model import db_conn
 import psycopg2
 import traceback
+import time
+from datetime import datetime,timedelta
+import fe.conf as conf
+# from be.model.global_scheduler import instance_GlobalScheduler
+import be.model.global_scheduler as global_scheduler
+
+def job(order_id):
+    database = "bookstore"
+    host = "localhost"
+    user = "postgres"
+    password = "shypostgredql"
+    conn=psycopg2.connect(host=host, database=database, user=user, password=password)
+    cur = conn.cursor()
+    query="select * from \"new_order\""
+    cur.execute(query)
+    data = cur.fetchone()
+
+    print("********",data,"*************")
+    # 关闭连接
+    cur.close()
+    conn.close()
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -61,13 +76,18 @@ class Buyer(db_conn.DBConn):
             cursor.execute(
                 "INSERT INTO \"new_order\" (order_id, store_id, user_id,pay,deliver,receive,order_time) VALUES(%s,%s,%s,%s,%s,%s,%s)" ,(
                     uid, store_id, user_id,0,0,0,current_time))
-
+            scheduler=global_scheduler.instance_GlobalScheduler.scheduler
+            cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
+            cur_time_datetime = datetime.strptime(cur_time_str, '%Y-%m-%d %H:%M:%S')
+            auto_cancel_time = timedelta(seconds=conf.auto_cancel_time)
+            scheduler.add_job(job, 'date', run_date=cur_time_datetime + auto_cancel_time, args=[order_id])
+            logging.log(logging.CRITICAL, "This is a critical log.")
             order_id = uid
             self.conn.commit()
             cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as e:
-            print(e)
+            traceback.print_exc()
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e)), ""
         except BaseException as e:

@@ -7,9 +7,10 @@ from be.view import auth
 from be.view import seller
 from be.view import buyer
 from be.model.store import init_database
+from apscheduler.schedulers.background import BackgroundScheduler
+import psycopg2
 
 bp_shutdown = Blueprint("shutdown", __name__)
-
 
 def shutdown_server():
     func = request.environ.get("werkzeug.server.shutdown")
@@ -29,7 +30,7 @@ def be_run():
     parent_path = os.path.dirname(this_path)
     print("***",this_path,"***")
     log_file = os.path.join(parent_path, "app.log")
-    init_database(parent_path)
+    init_database()
 
     logging.basicConfig(filename=log_file, level=logging.ERROR)
     handler = logging.StreamHandler()
@@ -45,3 +46,6 @@ def be_run():
     app.register_blueprint(seller.bp_seller)
     app.register_blueprint(buyer.bp_buyer)
     app.run()
+
+
+

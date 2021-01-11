@@ -36,7 +36,7 @@ class Book:
 class BookSplit(db_conn.DBConn):
     def __init__(self,global_store: bool = True,store_id:str = "ok"):
         # 创建实例init_database
-        store.init_database("aaa")
+        store.init_database()
         db_conn.DBConn.__init__(self)
         # 创建类 BookDB
         self.book_db = book.BookDB(conf.Use_Large_DB)
