@@ -9,6 +9,7 @@ import psycopg2
 import jieba
 import re
 from math import ceil
+from be.model import search
 
 
 # encode a json string like:
@@ -260,24 +261,27 @@ class User(db_conn.DBConn):
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
-            # 对用户的搜索进行分词，获得关键词列表
-            keyword_term = self.split_user_input(search_info)
-            # 获得 book_id 对应的包含关键词个数以及其分词后的长度
-            bookdb = initial_search.BookSplit(False, store_id)
-            dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content = bookdb.inverted_index()
-            # 获得 book_id 对应 其包含关键词个数 的字典
-            book_id_keyword_count = self.find_ids(keyword_term, dict_split_title)
-            # 获得对应页数的 book_id
-            book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_title, page)
-            if len(book_id) == 0:
+            # 进行查询
+            ## 先找出这家店的book_id
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)    #global 的时候去掉where
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            title_search = search.Search(search_info, page, book_id) #实例化一个search类
+            book_list = title_search.search_bookid_title()  # !!!!!调用函数，得到返回结果
+            if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
+
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))," "
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e))," "
-        return 200, "ok", book_id
+        return 200, "ok", book_list
+
 
     def store_search_book_intro(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
@@ -287,24 +291,25 @@ class User(db_conn.DBConn):
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
-            # 对用户的搜索进行分词，获得关键词列表
-            keyword_term = self.split_user_input(search_info)
-            # 获得 book_id 对应的包含关键词个数以及其分词后的长度
-            bookdb = initial_search.BookSplit(False, store_id)
-            dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content = bookdb.inverted_index()
-            # 获得 book_id 对应 其包含关键词个数 的字典
-            book_id_keyword_count = self.find_ids(keyword_term, dict_split_book_intro)
-            # 获得对应页数的 book_id
-            book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_book_intro, page)
-            if len(book_id) == 0:
+            # 查询
+            ## 先找出这家店的book_id
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)    #global 的时候去掉where
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            book_intro_search = search.Search(search_info, page, book_id) #实例化一个search类
+            book_list = book_intro_search.search_bookid_book_intro()  # !!!!!调用函数，得到返回结果
+            if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e))," "
+            return 528, "{}".format(str(e)), " "
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e))," "
-        return 200, "ok", book_id
+            return 530, "{}".format(str(e)), " "
+        return 200, "ok", book_list
 
     def store_search_content(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
@@ -314,57 +319,47 @@ class User(db_conn.DBConn):
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
-            # 对用户的搜索进行分词，获得关键词列表
-            keyword_term = self.split_user_input(search_info)
-            # 获得 book_id 对应的包含关键词个数以及其分词后的长度
-            bookdb = initial_search.BookSplit(False, store_id)
-            dict_split_title, dict_split_book_intro, dict_split_content, freq_split_title, freq_split_book_intro, freq_split_content = bookdb.inverted_index()
-            # 获得 book_id 对应 其包含关键词个数 的字典
-            book_id_keyword_count = self.find_ids(keyword_term, dict_split_content)
-            # 获得对应页数的 book_id
-            book_id = self.sort_id_importance_pagek(book_id_keyword_count, freq_split_content, page)
-            if len(book_id) == 0:
+            # 查询
+            # # 先找出这家店的book_id
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)    #global 的时候去掉where
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            content_search = search.Search(search_info, page, book_id) #实例化一个search类
+            book_list = content_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关排列
+            if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
+
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))," "
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e))," "
-        return 200, "ok", book_id
+        return 200, "ok", book_list
 
-    def global_search_title(self, user_id: str, search_info: str, page: int):
-        # 先对搜索内容进行分词，获得关键词
-        keyword_list = self.split_user_input(search_info)
-        book_id_count = {}  # 每一个 book_id 包含关键字个数
-        book_id_length = {}  # 每一个 book_id 本身拥有的单词个数
+    def store_search_tag(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
+            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
+            if not self.store_book_empty(store_id):
+                return error.error_store_book_empty(store_id)
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
-            for key_word in keyword_list:
-                # 获得每个关键词对应的 book_id
-                cursor = self.conn.cursor()
-                cursor.execute("SELECT book_id FROM book_split_title WHERE keyword = %s", (key_word,))
-                row = cursor.fetchone()
-                if row is not None:
-                    # 表中存储的 book_id 为字符串的形式，类似于 "{1000134,1009273}"
-                    book_id_list = row[0][1:-1].split(",")
-                    for book_id in book_id_list:
-                        if book_id in book_id_count.keys():
-                            book_id_count[book_id] = book_id_count[book_id] + 1
-                        else:
-                            book_id_count[book_id] = 1
-            for book_id in book_id_count.keys():
-                cursor = self.conn.cursor()
-                # 获得 book_id 对应的分词个数
-                cursor.execute("SELECT title_count FROM keyword_count WHERE book_id = %s", (book_id,))
-                row = cursor.fetchone()
-                if row is not None:
-                    book_id_length[book_id] = row[0]
-            # 进行 book_id 打分并且降序排序
-            book_id = self.sort_id_importance_pagek(book_id_count, book_id_length, page)
-            if len(book_id) == 0:
+            # 进行查询
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            title_search = search.Search(search_info, page, book_id)
+            # 考虑到用户会输入多个 tag 的情况，选出覆盖全部 tag 的 bookid
+            tag_search = search_info.split(" ")  # 获得用户输入的多个 tag
+            book_list = title_search.search_bookid_tag(tag_search)
+            if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
@@ -372,82 +367,50 @@ class User(db_conn.DBConn):
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e)), " "
-        return 200, "ok", book_id
+        return 200, "ok", book_list
 
-    def global_search_book_intro(self, user_id: str, search_info: str, page: int):
-        # 先对搜索内容进行分词，获得关键词
-        keyword_list = self.split_user_input(search_info)
-        book_id_count = {}  # 每一个 book_id 包含关键字个数
-        book_id_length = {}  # 每一个 book_id 本身拥有的单词个数
+
+    def global_search_title(self, user_id: str, search_info: str, page: int):
         try:
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
-            for key_word in keyword_list:
-                # 获得每个关键词对应的 book_id
-                cursor = self.conn.cursor()
-                cursor.execute("SELECT book_id FROM book_split_book_intro WHERE keyword = %s", (key_word,))
-                row = cursor.fetchone()
-                if row is not None:
-                    # 表中存储的 book_id 为字符串的形式，类似于 "{1000134,1009273}"
-                    book_id_list = row[0][1:-1].split(",")
-                    for book_id in book_id_list:
-                        if book_id in book_id_count.keys():
-                            book_id_count[book_id] = book_id_count[book_id] + 1
-                        else:
-                            book_id_count[book_id] = 1
-            for book_id in book_id_count.keys():
-                cursor = self.conn.cursor()
-                # 获得 book_id 对应的分词个数
-                cursor.execute("SELECT book_intro_count FROM keyword_count WHERE book_id = %s", (book_id,))
-                row = cursor.fetchone()
-                if row is not None:
-                    book_id_length[book_id] = row[0]
-            # 进行 book_id 打分并且降序排序
-            book_id = self.sort_id_importance_pagek(book_id_count, book_id_length, page)
-            # print(book_id)
-            if len(book_id) == 0:
+            # 查询
+            # # 先找出这家店的book_id
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" "   #global 的时候去掉where
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            title_search = search.Search(search_info, page, book_id) #实例化一个search类
+            book_list =  title_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
+            if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
-            # print(str(e))
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e))," "
+            return 528, "{}".format(str(e)), " "
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e))," "
-        return 200, "ok", book_id
+            return 530, "{}".format(str(e)), " "
+        return 200, "ok", book_list
 
-    def global_search_content(self, user_id: str, search_info: str, page: int):
-        # 先对搜索内容进行分词，获得关键词
-        keyword_list = self.split_user_input(search_info)
-        book_id_count = {}  # 每一个 book_id 包含关键字个数
-        book_id_length = {}  # 每一个 book_id 本身拥有的单词个数
-        try:  # 判断是否存在用户 id
+    def global_search_book_intro(self, user_id: str, search_info: str, page: int):
+        try:
+            # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
-            for key_word in keyword_list:
-                # 获得每个关键词对应的 book_id
-                cursor = self.conn.cursor()
-                cursor.execute("SELECT book_id FROM book_split_content WHERE keyword = %s", (key_word,))
-                row = cursor.fetchone()
-                if row is not None:
-                    # 表中存储的 book_id 为字符串的形式，类似于 "{1000134,1009273}"
-                    book_id_list = row[0][1:-1].split(",")
-                    for book_id in book_id_list:
-                        if book_id in book_id_count.keys():
-                            book_id_count[book_id] = book_id_count[book_id] + 1
-                        else:
-                            book_id_count[book_id] = 1
-            for book_id in book_id_count.keys():
-                cursor = self.conn.cursor()
-                # 获得 book_id 对应的分词个数
-                cursor.execute("SELECT content_count FROM keyword_count WHERE book_id = %s", (book_id,))
-                row = cursor.fetchone()
-                if row is not None:
-                    book_id_length[book_id] = row[0]
-            # 进行 book_id 打分并且降序排序
-            book_id = self.sort_id_importance_pagek(book_id_count, book_id_length, page)
-            if len(book_id) == 0:
+            # 查询
+            # # 先找出这家店的book_id
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" "  # global 的时候去掉where
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            book_intro_search = search.Search(search_info, page, book_id)  # 实例化一个search类
+            book_list = book_intro_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
+            if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
@@ -455,4 +418,58 @@ class User(db_conn.DBConn):
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e))," "
-        return 200, "ok", book_id
+        return 200, "ok", book_list
+
+    def global_search_content(self, user_id: str, search_info: str, page: int):
+        try:  # 判断是否存在用户 id
+            # 判断是否存在用户 id
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id_when_search(user_id)
+            # 查询
+            # # 先找出这家店的book_id
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" "  # global 的时候去掉where
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            _content_search = search.Search(search_info, page, book_id)  # 实例化一个search类
+            book_list = _content_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
+            if len(book_list) == 0:
+                return error.error_page_out_of_range(user_id)
+        except (Exception, psycopg2.DatabaseError) as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e))," "
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e))," "
+        return 200, "ok",book_list
+
+    def global_search_tag(self, user_id: str, store_id: str, search_info: str, page: int):
+        try:
+            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
+            if not self.store_book_empty(store_id):
+                return error.error_store_book_empty(store_id)
+            # 判断是否存在用户 id
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id_when_search(user_id)
+            # 进行查询
+            cursor = self.conn.cursor()
+            query = "SELECT book_id FROM \"store\" ", (store_id,)
+            cursor.execute(query)
+            book_id = []
+            for row in cursor:
+                book_id.append(row[0])
+            title_search = search.Search(search_info, page, book_id)
+            # 考虑到用户会输入多个 tag 的情况，选出覆盖全部 tag 的 bookid
+            tag_search = search_info.split(" ")  # 获得用户输入的多个 tag
+            book_list = title_search.search_bookid_tag(tag_search)
+            if len(book_list) == 0:
+                return error.error_page_out_of_range(user_id)
+        except (Exception, psycopg2.DatabaseError) as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e))," "
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e))," "
+        return 200, "ok" ,book_list

@@ -40,7 +40,7 @@ class TestStoreSearchContent:
     # 用户的 id 不存在
     def test_error_user_id(self):
         code = self.auth.store_search_content(self.user_id + "_x", self.store_id, self.search_info,self.page)
-        assert code == 533
+        assert code == 511
 
     # 店铺未上架过新书（这里使用店铺的 id 不存在进行测试）
     def test_non_exist_store_id(self):
