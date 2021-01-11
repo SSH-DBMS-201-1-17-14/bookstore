@@ -39,9 +39,15 @@ class Session(threading.Thread):
                 self.new_order_ok = self.new_order_ok + 1
                 payment = Payment(new_order.buyer, order_id)
                 self.payment_request.append(payment)
+
+
             if self.new_order_i % 100 or self.new_order_i == len(self.new_order_request):
+
+                # 进入循环前打开logging_deal.txt
+                f_deal = open('D:\\logging_deal.txt', mode='a')
+                f_deal.write('开始测试性能\n')
                 self.workload.update_stat(self.new_order_i, self.payment_i, self.new_order_ok, self.payment_ok,
-                                          self.time_new_order, self.time_payment)
+                                          self.time_new_order, self.time_payment,f_deal)
                 for payment in self.payment_request:
                     before = time.time()
                     ok = payment.run()
@@ -51,3 +57,6 @@ class Session(threading.Thread):
                     if ok:
                         self.payment_ok = self.payment_ok + 1
                 self.payment_request = []
+
+                f_deal.close()
+
