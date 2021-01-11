@@ -52,59 +52,59 @@ def change_password():
     code, message = u.change_password(user_id=user_id, old_password=old_password, new_password=new_password)
     return jsonify({"message": message}), code
 
-@bp_auth.route("/store_search_title",method = ["POST"])
+@bp_auth.route("/store_search_title", methods=["POST"])
 def store_search_title():
-    user_id = request.json.get("user_id", "")
-    store_id = request.json.get("store_id", "")
-    search_info = request.json.get("search_info", "")
-    page = request.json.get("page", "")
+    user_id = request.json.get("user_id","")
+    store_id = request.json.get("store_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
     u = user.User()
     code, message = u.store_search_title(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
     return jsonify({"message": message}), code
 
-@bp_auth.route("/store_search_book_intro",method = ["POST"])
+@bp_auth.route("/store_search_book_intro", methods=["POST"])
 def store_search_book_intro():
-    user_id = request.json.get("user_id", "")
-    store_id = request.json.get("store_id", "")
-    search_info = request.json.get("search_info", "")
-    page = request.json.get("page", "")
+    user_id = request.json.get("user_id","")
+    store_id = request.json.get("store_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
     u = user.User()
     code, message = u.store_search_book_intro(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
     return jsonify({"message": message}), code
 
-@bp_auth.route("/store_search_content",method = ["POST"])
+@bp_auth.route("/store_search_content", methods=["POST"])
 def store_search_content():
-    user_id = request.json.get("user_id", "")
-    store_id = request.json.get("store_id", "")
-    search_info = request.json.get("search_info", "")
-    page = request.json.get("page", "")
+    user_id = request.json.get("user_id","")
+    store_id = request.json.get("store_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
     u = user.User()
     code, message = u.store_search_content(user_id=user_id, store_id = store_id,search_info = search_info,page = page)
     return jsonify({"message": message}), code
 
-@bp_auth.route("/global_search_title",method = ["POST"])
+@bp_auth.route("/global_search_title", methods=["POST"])
 def global_search_title():
-    user_id = request.json.get("user_id", "")
-    search_info = request.json.get("search_info", "")
-    page = request.json.get("page", "")
+    user_id = request.json.get("user_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
     u = user.User()
-    code, message = u.global_search_title(user_id=user_id, search_info = search_info,page = page)
+    code, message = u.global_search_title(user_id=user_id,search_info = search_info,page = page)
     return jsonify({"message": message}), code
 
-@bp_auth.route("/global_search_book_intro",method = ["POST"])
+@bp_auth.route("/global_search_book_intro", methods=["POST"])
 def global_search_book_intro():
-    user_id = request.json.get("user_id", "")
-    search_info = request.json.get("search_info", "")
-    page = request.json.get("page", "")
+    user_id = request.json.get("user_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
     u = user.User()
-    code, message = u.global_search_book_intro(user_id=user_id, search_info = search_info,page = page)
+    code, message = u.global_search_book_intro(user_id=user_id,search_info = search_info,page = page)
     return jsonify({"message": message}), code
 
-@bp_auth.route("/global_search_content",method = ["POST"])
+@bp_auth.route("/global_search_content", methods=["POST"])
 def global_search_content():
-    user_id = request.json.get("user_id", "")
-    search_info = request.json.get("search_info", "")
-    page = request.json.get("page", "")
+    user_id = request.json.get("user_id","")
+    search_info = request.json.get("search_info","")
+    page = request.json.get("page","")
     u = user.User()
-    code, message = u.global_search_content(user_id=user_id, search_info = search_info,page = page)
+    code, message = u.global_search_content(user_id=user_id,search_info = search_info,page = page)
     return jsonify({"message": message}), code
