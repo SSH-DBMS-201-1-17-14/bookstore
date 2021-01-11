@@ -132,7 +132,7 @@ class User(db_conn.DBConn):
             return 530, "{}".format(str(e)), ""
         return 200, "ok", token
 
-    def logout(self, user_id: str, token: str) -> bool:
+    def logout(self, user_id: str, token: str) :
         try:
             code, message = self.check_token(user_id, token)
             if code != 200:
@@ -173,7 +173,7 @@ class User(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
 
-    def change_password(self, user_id: str, old_password: str, new_password: str) -> bool:
+    def change_password(self, user_id: str, old_password: str, new_password: str) :
         try:
             code, message = self.check_password(user_id, old_password)
             if code != 200:
@@ -232,7 +232,9 @@ class User(db_conn.DBConn):
         importance_score = sorted(importance_score.items(), key=lambda d: d[1], reverse=True)  # 由分数的从高到低进行排序
         # 因为最后一页不一定能显10个，判断一下能分几页
         id_n = len(importance_score)
+        #print('.........id_n......... = %d'%id_n)
         pages_num = ceil(id_n / 10 * 1.0)  # 共有pages_num
+        #print('.........pages_num......... = %d'%pages_num)
         # 输入页码超过最大页数,输出空列表
         if pagek > pages_num:
             return []
@@ -300,7 +302,7 @@ class User(db_conn.DBConn):
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e))
-        return 200, "ok"
+        return 200, "ok", book_id
 
     def store_search_content(self,user_id: str,store_id: str,search_info: str,page:int):
         try:
@@ -345,7 +347,7 @@ class User(db_conn.DBConn):
                 row = cursor.fetchone()
                 if row is not None:
                     # 表中存储的 book_id 为字符串的形式，类似于 "{1000134,1009273}"
-                    book_id_list = row[1:-1].split(",")
+                    book_id_list = row[0][1:-1].split(",")
                     for book_id in book_id_list:
                         if book_id in book_id_count.keys():
                             book_id_count[book_id] = book_id_count[book_id] + 1
@@ -364,10 +366,10 @@ class User(db_conn.DBConn):
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e))
+            return 528, "{}".format(str(e)), ""
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e))
+            return 530, "{}".format(str(e)), ""
         return 200, "ok"
 
     def global_search_book_intro(self,user_id: str,search_info:str,page:int):
@@ -386,7 +388,7 @@ class User(db_conn.DBConn):
                 row = cursor.fetchone()
                 if row is not None:
                     # 表中存储的 book_id 为字符串的形式，类似于 "{1000134,1009273}"
-                    book_id_list = row[1:-1].split(",")
+                    book_id_list = row[0][1:-1].split(",")
                     for book_id in book_id_list:
                         if book_id in book_id_count.keys():
                             book_id_count[book_id] = book_id_count[book_id] + 1
@@ -401,9 +403,11 @@ class User(db_conn.DBConn):
                     book_id_length[book_id] = row[0]
             # 进行 book_id 打分并且降序排序
             book_id = self.sort_id_importance_pagek(book_id_count,book_id_length,page)
+            # print(book_id)
             if len(book_id) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
+            # print(str(e))
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))
         except BaseException as e:
@@ -426,7 +430,7 @@ class User(db_conn.DBConn):
                 row = cursor.fetchone()
                 if row is not None:
                     # 表中存储的 book_id 为字符串的形式，类似于 "{1000134,1009273}"
-                    book_id_list = row[1:-1].split(",")
+                    book_id_list = row[0][1:-1].split(",")
                     for book_id in book_id_list:
                         if book_id in book_id_count.keys():
                             book_id_count[book_id] = book_id_count[book_id] + 1
@@ -445,10 +449,10 @@ class User(db_conn.DBConn):
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
             logging.info("528, {}".format(str(e)))
-            return 528, "{}".format(str(e))
+            return 528, "{}".format(str(e)), ""
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            return 530, "{}".format(str(e))
+            return 530, "{}".format(str(e)), ""
         return 200, "ok"
 
 
