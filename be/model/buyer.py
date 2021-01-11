@@ -12,22 +12,7 @@ from datetime import datetime,timedelta
 import fe.conf as conf
 # from be.model.global_scheduler import instance_GlobalScheduler
 import be.model.global_scheduler as global_scheduler
-
-def job(order_id):
-    database = "bookstore"
-    host = "localhost"
-    user = "postgres"
-    password = "shypostgredql"
-    conn=psycopg2.connect(host=host, database=database, user=user, password=password)
-    cur = conn.cursor()
-    query="select * from \"new_order\""
-    cur.execute(query)
-    data = cur.fetchone()
-
-    print("********",data,"*************")
-    # 关闭连接
-    cur.close()
-    conn.close()
+from be.model.tool import cancel_order_tool
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -80,8 +65,7 @@ class Buyer(db_conn.DBConn):
             cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
             cur_time_datetime = datetime.strptime(cur_time_str, '%Y-%m-%d %H:%M:%S')
             auto_cancel_time = timedelta(seconds=conf.auto_cancel_time)
-            scheduler.add_job(job, 'date', run_date=cur_time_datetime + auto_cancel_time, args=[order_id])
-            logging.log(logging.CRITICAL, "This is a critical log.")
+            scheduler.add_job(global_scheduler.delete_order, 'date', run_date=cur_time_datetime + auto_cancel_time,args=[uid])
             order_id = uid
             self.conn.commit()
             cursor.close()
@@ -289,13 +273,27 @@ class Buyer(db_conn.DBConn):
 
             if self.pay_flag_set(order_id):
                 return error.error_and_message(543,error.error_code[543].format(order_id))
-
-            cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id, ))
-            cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
-            self.conn.commit()
+            cursor.close()
+            cancel_order_tool(self.conn,order_id)
+            # cursor.execute("select store_id from \"new_order\" where order_id=(%s)",(order_id,))
+            # store_id=cursor.fetchone()[0]
+            # cursor.execute("select book_id,count from \"new_order_detail\" where order_id=(%s)",(order_id,))
+            # rows=cursor.fetchall()
+            # for row in rows:
+            #     book_id=row[0]
+            #     count=row[1]
+            #     cursor.execute("UPDATE \"store\" SET stock_level = stock_level + (%s) "
+            #                    "WHERE store_id = (%s) AND book_id = (%s)",
+            #                    (count, store_id, book_id,))
+            # cursor.execute("DELETE FROM \"new_order\" WHERE order_id =(%s)",(order_id, ))
+            # cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
+            # self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as e:
-            print(e)
+            traceback.print_exc()
             return 528, "{}".format(str(e)),
         except BaseException as e:
             return 530, "{}".format(str(e)),
         return 200, "ok"
+
+
+

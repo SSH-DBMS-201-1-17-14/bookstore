@@ -24,9 +24,6 @@ class Seller(db_conn.DBConn):
                               "VALUES (%s, %s, %s, %s)", (store_id, book_id, book_json_str, stock_level))
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as e:
-            print(self.conn)
-            print(type(self.conn))
-            print(e)
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
