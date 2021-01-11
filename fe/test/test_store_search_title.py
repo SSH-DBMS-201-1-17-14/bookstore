@@ -20,7 +20,7 @@ class TestStoreSearchTitle:
         self.seller = register_new_seller(self.another_user_id, self.password)
         self.store_id = "test_store_search_title_store_id_{}".format(str(uuid.uuid1()))
         assert self.seller.create_store(self.store_id) == 200
-        # 对其增加库存（50本书）
+        # 对其增加库存（80本书）
         book_db = book.BookDB()
         self.books = book_db.get_book_info(0, 80)
         for b in self.books:
