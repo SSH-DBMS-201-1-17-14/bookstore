@@ -34,9 +34,10 @@ class GenBook:
         for bk in books:
             if low_stock_level:
                 stock_level = random.randint(0, 100)
+                code = self.seller.add_book(self.store_id, stock_level, bk)
             else:
                 stock_level = random.randint(2, 100)
-            code = self.seller.add_book(self.store_id, stock_level, bk)
+                code = self.seller.add_book(self.store_id, 4*stock_level, bk)
             assert code == 200
             book_id_stock_level[bk.id] = stock_level
             book_id_exist.append(bk)

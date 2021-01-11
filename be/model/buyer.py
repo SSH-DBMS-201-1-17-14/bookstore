@@ -12,7 +12,7 @@ import sqlite3 as sqlite
 from be.model import error
 from be.model import db_conn
 import psycopg2
-
+import traceback
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -217,19 +217,19 @@ class Buyer(db_conn.DBConn):
             history_orders={}
             # query = "SELECT * FROM new_order join new_order_detail on new_order.order_id=new_order_detail.order_id where new_order.\"user_id\"={}".format(user_id)
             # cursor.execute(query)
-            cursor.execute("select * from \"new_order\" inner join \"new_order_detail\" on \"new_order\".order_id=\"new_order_detail\".order_id where \"new_order\".user_id=(%s)",(user_id,))
+            cursor.execute("select \"new_order\".order_id, \"new_order\".store_id, \"new_order\".pay, \"new_order\".deliver, \"new_order\".receive, \"new_order_detail\".book_id, \"new_order_detail\".count, \"new_order_detail\".price from \"new_order\" inner join \"new_order_detail\" on \"new_order\".order_id=\"new_order_detail\".order_id where \"new_order\".user_id=(%s)",(user_id,))
             rows=cursor.fetchall()
             if rows is not None:
                 for row in rows:
                     order_id=row[0]
-                    book_id = row[6]
-                    count = row[7]
-                    price = row[8]
+                    book_id = row[5]
+                    count = row[6]
+                    price = row[7]
                     if(order_id not in history_orders.keys()):
-                        store_id = row[2]
-                        pay = row[3]
-                        deliver = row[4]
-                        receive = row[5]
+                        store_id = row[1]
+                        pay = row[2]
+                        deliver = row[3]
+                        receive = row[4]
                         if(receive):
                             status="已收货"
                         elif(deliver):
@@ -238,12 +238,13 @@ class Buyer(db_conn.DBConn):
                             status="已付款"
                         else:
                             status="未付款"
-                        history_orders[order_id]={"store_id":store_id,"status":status,"books":{book_id:[price,count]},"amount":price*count}
+                        history_orders[order_id]={"store_id":store_id,"status":status,"books":{book_id:[price,count]},"amount":int(price)*int(count)}
                     else:
                         history_orders[order_id]["books"][book_id]=[price,count]
                         history_orders[order_id]["amount"]+=price*count
         except (Exception, psycopg2.DatabaseError) as e:
-            print(e)
+            print(row)
+            traceback.print_exc()
             return 528, "{}".format(str(e)),{},
         except BaseException as e:
             return 530, "{}".format(str(e)),{},
@@ -273,6 +274,7 @@ class Buyer(db_conn.DBConn):
             cursor.execute("DELETE FROM \"new_order_detail\" where order_id = (%s)", (order_id, ))
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as e:
+            print(e)
             return 528, "{}".format(str(e)),
         except BaseException as e:
             return 530, "{}".format(str(e)),
