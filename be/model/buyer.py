@@ -81,7 +81,6 @@ class Buyer(db_conn.DBConn):
         return 200, "ok", order_id
 
     def payment(self, user_id: str, password: str, order_id: str) -> (int, str):
-        conn = self.conn
         try:
             cursor = self.conn.cursor()
             cursor.execute("SELECT order_id, user_id, store_id FROM \"new_order\" WHERE order_id = (%s)",(order_id,))

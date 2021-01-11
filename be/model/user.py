@@ -268,7 +268,8 @@ class User(db_conn.DBConn):
             # cursor.execute("SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)  )
             cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
-            for row in cursor:
+            rows = cursor.fetchall()
+            for row in rows:
                 book_id.append(row[0])
             title_search = search.Search(search_info, page, book_id) #实例化一个search类
             book_list = title_search.search_bookid_title()  # !!!!!调用函数，得到返回结果
@@ -299,7 +300,8 @@ class User(db_conn.DBConn):
             # query =     #global 的时候去掉where
             cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
-            for row in cursor:
+            rows = cursor.fetchall()
+            for row in rows:
                 book_id.append(row[0])
             book_intro_search = search.Search(search_info, page, book_id) #实例化一个search类
             book_list = book_intro_search.search_bookid_book_intro()  # !!!!!调用函数，得到返回结果
@@ -329,18 +331,15 @@ class User(db_conn.DBConn):
             # query =    #global 的时候去掉where
             cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,) )
             rows=cursor.fetchall()
-            if rows is None:
-                return error.error_page_out_of_range(user_id)
             book_id = []
-            for row in cursor:
+            for row in rows:
                 book_id.append(row[0])
             content_search = search.Search(search_info, page, book_id) #实例化一个search类
             book_list = content_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关排列
             if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
-
-
         except (Exception, psycopg2.DatabaseError) as e:
+            print(len(book_id))
             traceback.print_exc()
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))," "
@@ -360,9 +359,11 @@ class User(db_conn.DBConn):
             # 进行查询
             cursor = self.conn.cursor()
             # query =
+            # cur.execute("SELECT store_id FROM \"store\" WHERE store_id =  (%s) ", (store_id,))
             cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
+            rows=cursor.fetchall()
             book_id = []
-            for row in cursor:
+            for row in rows:
                 book_id.append(row[0])
             title_search = search.Search(search_info, page, book_id)
             # 考虑到用户会输入多个 tag 的情况，选出覆盖全部 tag 的 bookid
@@ -390,7 +391,8 @@ class User(db_conn.DBConn):
             query = "SELECT book_id FROM \"store\" "   #global 的时候去掉where
             cursor.execute(query)
             book_id = []
-            for row in cursor:
+            rows=cursor.fetchall()
+            for row in rows:
                 book_id.append(row[0])
             title_search = search.Search(search_info, page, book_id) #实例化一个search类
             book_list =  title_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
@@ -415,7 +417,8 @@ class User(db_conn.DBConn):
             query = "SELECT book_id FROM \"store\" "  # global 的时候去掉where
             cursor.execute(query)
             book_id = []
-            for row in cursor:
+            rows=cursor.fetchall()
+            for row in rows:
                 book_id.append(row[0])
             book_intro_search = search.Search(search_info, page, book_id)  # 实例化一个search类
             book_list = book_intro_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
@@ -440,7 +443,8 @@ class User(db_conn.DBConn):
             query = "SELECT book_id FROM \"store\" "  # global 的时候去掉where
             cursor.execute(query)
             book_id = []
-            for row in cursor:
+            rows = cursor.fetchall()
+            for row in rows:
                 book_id.append(row[0])
             _content_search = search.Search(search_info, page, book_id)  # 实例化一个search类
             book_list = _content_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
@@ -467,7 +471,8 @@ class User(db_conn.DBConn):
             # query =
             cursor.execute("SELECT book_id FROM \"store\" ", (store_id,))
             book_id = []
-            for row in cursor:
+            rows = cursor.fetchall()
+            for row in rows:
                 book_id.append(row[0])
             title_search = search.Search(search_info, page, book_id)
             # 考虑到用户会输入多个 tag 的情况，选出覆盖全部 tag 的 bookid

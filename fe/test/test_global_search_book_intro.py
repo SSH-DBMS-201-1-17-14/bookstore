@@ -42,7 +42,7 @@ class TestGlobal_search_book_intro:
     def test_error_non_user_id(self):
         user_id = self.user_id + "_x"
         code = self.auth.global_search_book_intro(user_id, self.search_info, self.page)
-        assert code == 511
+        assert code == 533
 
     # 测试用户输入页码太大
     def test_error_page_too_large(self):
