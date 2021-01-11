@@ -10,7 +10,7 @@ import jieba
 import re
 from math import ceil
 from be.model import search
-
+import traceback
 
 # encode a json string like:
 #   {
@@ -264,8 +264,9 @@ class User(db_conn.DBConn):
             # 进行查询
             ## 先找出这家店的book_id
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)    #global 的时候去掉where
-            cursor.execute(query)
+            # query =   #global 的时候去掉where
+            # cursor.execute("SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)  )
+            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
             for row in cursor:
                 book_id.append(row[0])
@@ -275,6 +276,7 @@ class User(db_conn.DBConn):
                 return error.error_page_out_of_range(user_id)
 
         except (Exception, psycopg2.DatabaseError) as e:
+            traceback.print_exc()
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))," "
         except BaseException as e:
@@ -294,8 +296,8 @@ class User(db_conn.DBConn):
             # 查询
             ## 先找出这家店的book_id
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)    #global 的时候去掉where
-            cursor.execute(query)
+            # query =     #global 的时候去掉where
+            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
             for row in cursor:
                 book_id.append(row[0])
@@ -304,6 +306,8 @@ class User(db_conn.DBConn):
             if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
+            logging.log(logging.CRITICAL, "*****"+store_id+"*******")
+            traceback.print_exc()
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e)), " "
         except BaseException as e:
@@ -322,8 +326,11 @@ class User(db_conn.DBConn):
             # 查询
             # # 先找出这家店的book_id
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)    #global 的时候去掉where
-            cursor.execute(query)
+            # query =    #global 的时候去掉where
+            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,) )
+            rows=cursor.fetchall()
+            if rows is None:
+                return error.error_page_out_of_range(user_id)
             book_id = []
             for row in cursor:
                 book_id.append(row[0])
@@ -332,7 +339,9 @@ class User(db_conn.DBConn):
             if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
 
+
         except (Exception, psycopg2.DatabaseError) as e:
+            traceback.print_exc()
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))," "
         except BaseException as e:
@@ -350,8 +359,8 @@ class User(db_conn.DBConn):
                 return error.error_non_exist_user_id_when_search(user_id)
             # 进行查询
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)
-            cursor.execute(query)
+            # query =
+            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
             for row in cursor:
                 book_id.append(row[0])
@@ -455,8 +464,8 @@ class User(db_conn.DBConn):
                 return error.error_non_exist_user_id_when_search(user_id)
             # 进行查询
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" ", (store_id,)
-            cursor.execute(query)
+            # query =
+            cursor.execute("SELECT book_id FROM \"store\" ", (store_id,))
             book_id = []
             for row in cursor:
                 book_id.append(row[0])
