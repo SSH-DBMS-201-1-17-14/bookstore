@@ -22,7 +22,7 @@ class TestStoreSearchTitle:
         assert self.seller.create_store(self.store_id) == 200
         # 对其增加库存（50本书）
         book_db = book.BookDB()
-        self.books = book_db.get_book_info(0, 50)
+        self.books = book_db.get_book_info(0, 80)
         for b in self.books:
             code = self.seller.add_book(self.store_id, 0, b)
             assert code == 200
