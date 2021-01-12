@@ -8,6 +8,8 @@ from be.view import seller
 from be.view import buyer
 from be.model.store import init_database
 from apscheduler.schedulers.background import BackgroundScheduler
+# from be.model.global_scheduler import instance_GlobalScheduler,GlobalScheduler
+import be.model.global_scheduler as global_scheduler
 import psycopg2
 
 bp_shutdown = Blueprint("shutdown", __name__)
@@ -40,12 +42,17 @@ def be_run():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
 
+    scheduler = BackgroundScheduler()
+    global_scheduler.instance_GlobalScheduler = global_scheduler.GlobalScheduler(scheduler)
+    scheduler.start()
+
     app = Flask(__name__)
     app.register_blueprint(bp_shutdown)
     app.register_blueprint(auth.bp_auth)
     app.register_blueprint(seller.bp_seller)
     app.register_blueprint(buyer.bp_buyer)
     app.run()
+
 
 
 

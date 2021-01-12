@@ -19,12 +19,13 @@ class GlobalScheduler():
         self.user = "postgres"
         self.password = "shypostgredql"
         self.conn = psycopg2.connect(host=self.host, database=self.database, user=self.user, password=self.password)
-
     def delete_order(self,order_id):
         cancel_order_tool(self.conn, order_id)
 
-scheduler = BackgroundScheduler()
-instance_GlobalScheduler=GlobalScheduler(scheduler)
-scheduler.start()
+global instance_GlobalScheduler
+
+# scheduler = BackgroundScheduler()
+# instance_GlobalScheduler=GlobalScheduler(scheduler)
+# scheduler.start()
 
 
