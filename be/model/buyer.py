@@ -65,7 +65,7 @@ class Buyer(db_conn.DBConn):
             cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
             cur_time_datetime = datetime.strptime(cur_time_str, '%Y-%m-%d %H:%M:%S')
             auto_cancel_time = timedelta(seconds=conf.auto_cancel_time)
-            scheduler.add_job(global_scheduler.delete_order, 'date', run_date=cur_time_datetime + auto_cancel_time,args=[uid])
+            scheduler.add_job(global_scheduler.instance_GlobalScheduler.delete_order, 'date', run_date=cur_time_datetime + auto_cancel_time,args=[uid])
             order_id = uid
             self.conn.commit()
             cursor.close()
