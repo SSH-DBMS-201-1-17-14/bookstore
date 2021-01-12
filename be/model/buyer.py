@@ -8,7 +8,7 @@ import traceback
 import time
 from datetime import datetime,timedelta
 import fe.conf as conf
-# from be.model.global_scheduler import instance_GlobalScheduler
+# from be.model.global_scheduler import instance_GlobalAutoCancelOrder
 import be.model.global_scheduler as global_scheduler
 from be.model.tool import cancel_order_tool
 
@@ -60,11 +60,11 @@ class Buyer(db_conn.DBConn):
                 "INSERT INTO \"new_order\" (order_id, store_id, user_id,pay,deliver,receive,return,refund,order_time) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)" ,(
                     uid, store_id, user_id,0,0,0,0,0,current_time))
 
-            scheduler=global_scheduler.instance_GlobalScheduler.scheduler
+            scheduler=global_scheduler.instance_GlobalAutoCancelOrder.scheduler
             cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
             cur_time_datetime = datetime.strptime(cur_time_str, '%Y-%m-%d %H:%M:%S')
             auto_cancel_time = timedelta(seconds=conf.auto_cancel_time)
-            scheduler.add_job(global_scheduler.instance_GlobalScheduler.delete_order,
+            scheduler.add_job(global_scheduler.instance_GlobalAutoCancelOrder.delete_order,
                               'date', run_date=cur_time_datetime + auto_cancel_time,args=[uid])
             order_id = uid
             self.conn.commit()
@@ -326,7 +326,16 @@ class Buyer(db_conn.DBConn):
 
             cursor.execute("UPDATE \"new_order\" SET return=1 WHERE order_id=(%s)", (order_id,))
             self.conn.commit()
+
+            current_time = time.time()
+            scheduler = global_scheduler.instance_AutoAdmmitReturn.scheduler
+            cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
+            cur_time_datetime = datetime.strptime(cur_time_str, '%Y-%m-%d %H:%M:%S')
+            auto_cancel_time = timedelta(seconds=conf.auto_return_time)
+            scheduler.add_job(global_scheduler.instance_AutoAdmmitReturn.AutoAdmmitReturn,
+                              'date', run_date=cur_time_datetime + auto_cancel_time, args=[order_id,user_id])
         except (Exception, psycopg2.DatabaseError) as e:
+            traceback.print_exc()
             return 528, "{}".format(str(e)),
         except BaseException as e:
             return 530, "{}".format(str(e)),

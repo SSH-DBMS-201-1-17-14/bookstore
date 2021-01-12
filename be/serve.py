@@ -8,7 +8,7 @@ from be.view import seller
 from be.view import buyer
 from be.model.store import init_database
 from apscheduler.schedulers.background import BackgroundScheduler
-# from be.model.global_scheduler import instance_GlobalScheduler,GlobalScheduler
+# from be.model.global_scheduler import instance_GlobalAutoCancelOrder,GlobalAutoCancelOrder
 import be.model.global_scheduler as global_scheduler
 import psycopg2
 
@@ -42,9 +42,13 @@ def be_run():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
 
-    scheduler = BackgroundScheduler()
-    global_scheduler.instance_GlobalScheduler = global_scheduler.GlobalScheduler(scheduler)
-    scheduler.start()
+    auto_cancel_scheduler = BackgroundScheduler()
+    global_scheduler.instance_GlobalAutoCancelOrder = global_scheduler.GlobalAutoCancelOrder(auto_cancel_scheduler)
+    auto_cancel_scheduler.start()
+
+    auto_return_scheduler = BackgroundScheduler()
+    global_scheduler.instance_AutoAdmmitReturn = global_scheduler.GlobalAutoAdmmitReturn(auto_return_scheduler)
+    auto_return_scheduler.start()
 
     app = Flask(__name__)
     app.register_blueprint(bp_shutdown)

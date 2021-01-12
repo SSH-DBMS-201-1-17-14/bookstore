@@ -42,10 +42,10 @@ class TestStoreSearchTitle:
         code = self.auth.store_search_title(self.user_id + "_x", self.store_id, self.search_info,self.page)
         assert code == 533
 
-    # 店铺未上架过新书（这里使用店铺的 id 不存在进行测试）
-    def test_non_exist_store_id(self):
-        code = self.auth.store_search_title(self.user_id, self.store_id + "_x", self.search_info, self.page)
-        assert code == 531
+    # # 店铺未上架过新书（这里使用店铺的 id 不存在进行测试）
+    # def test_non_exist_store_id(self):
+    #     code = self.auth.store_search_title(self.user_id, self.store_id + "_x", self.search_info, self.page)
+    #     assert code == 531
 
     # 测试用户输入页码太大
     def test_error_page_too_large(self):

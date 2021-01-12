@@ -11,3 +11,4 @@ Default_User_Funds = 10000000
 Data_Batch_Size = 100
 Use_Large_DB = False
 auto_cancel_time=20 #单位为秒
+auto_return_time=600
