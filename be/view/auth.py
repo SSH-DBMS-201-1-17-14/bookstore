@@ -128,3 +128,11 @@ def store_search_tag():
     u = user.User()
     code, message, book_id = u.store_search_tag(user_id=user_id,store_id=store_id,search_info = search_info,page = page)
     return jsonify({"message": message,"book_id":book_id}), code
+
+@bp_auth.route("/get_store_id", methods=["POST"])
+def get_store_id():
+    user_id = request.json.get("user_id","")
+    book_id = request.json.get("book_id","")
+    u = user.User()
+    code,  message, store_id_list = u.get_store_id(user_id=user_id,book_id = book_id)
+    return jsonify({"message": message,"store_id_list": store_id_list}), code

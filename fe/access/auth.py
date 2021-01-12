@@ -116,3 +116,10 @@ class Auth:
         url = urljoin(self.url_prefix, "store_search_tag")
         r = requests.post(url, json=json)
         return r.status_code
+
+    def get_store_id(self, user_id: str,book_id: str) -> int:
+        json = {"user_id": user_id,
+                "book_id": book_id}
+        url = urljoin(self.url_prefix, "get_store_id")
+        r = requests.post(url, json=json)
+        return r.status_code
