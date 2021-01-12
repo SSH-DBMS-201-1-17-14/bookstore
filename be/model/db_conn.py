@@ -1,5 +1,4 @@
 from be.model import store
-import psycopg2
 
 class DBConn:
     def __init__(self):
@@ -41,7 +40,7 @@ class DBConn:
     # 检查店铺和用户的所属关系
     def user_store_exist(self, user_id, store_id):
         cur=self.conn.cursor()
-        cur.execute("SELECT * FROM \"user_store\" WHERE user_id= (%s) AND store_id =  (%s) ", (user_id,store_id))
+        cur.execute("SELECT * FROM \"user_store\" WHERE store_id =  (%s) AND user_id= (%s) ", (store_id, user_id))
         row =cur.fetchone()
         cur.close()
         if row is None:
@@ -95,6 +94,16 @@ class DBConn:
     def deliver_flag_set(self,order_id):
         cur=self.conn.cursor()
         cur.execute("select * from \"new_order\" where order_id=(%s) and deliver=1",(order_id,))
+        row = cur.fetchone()
+        cur.close()
+        if row is None:
+            return False
+        else:
+            return True
+
+    def return_flag_set(self,order_id):
+        cur = self.conn.cursor()
+        cur.execute("select * from \"new_order\" where order_id=(%s) and return=1", (order_id,))
         row = cur.fetchone()
         cur.close()
         if row is None:

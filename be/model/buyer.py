@@ -1,8 +1,6 @@
-import sqlite3 as sqlite
 import uuid
 import json
 import logging
-import sqlite3 as sqlite
 from be.model import error
 from be.model import db_conn
 import psycopg2
@@ -59,13 +57,15 @@ class Buyer(db_conn.DBConn):
 
             current_time=time.time()
             cursor.execute(
-                "INSERT INTO \"new_order\" (order_id, store_id, user_id,pay,deliver,receive,order_time) VALUES(%s,%s,%s,%s,%s,%s,%s)" ,(
-                    uid, store_id, user_id,0,0,0,current_time))
+                "INSERT INTO \"new_order\" (order_id, store_id, user_id,pay,deliver,receive,return,refund,order_time) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)" ,(
+                    uid, store_id, user_id,0,0,0,0,0,current_time))
+
             scheduler=global_scheduler.instance_GlobalScheduler.scheduler
             cur_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(current_time))
             cur_time_datetime = datetime.strptime(cur_time_str, '%Y-%m-%d %H:%M:%S')
             auto_cancel_time = timedelta(seconds=conf.auto_cancel_time)
-            scheduler.add_job(global_scheduler.instance_GlobalScheduler.delete_order, 'date', run_date=cur_time_datetime + auto_cancel_time,args=[uid])
+            scheduler.add_job(global_scheduler.instance_GlobalScheduler.delete_order,
+                              'date', run_date=cur_time_datetime + auto_cancel_time,args=[uid])
             order_id = uid
             self.conn.commit()
             cursor.close()
@@ -245,12 +245,18 @@ class Buyer(db_conn.DBConn):
                             status="已付款"
                         else:
                             status="未付款"
-                        history_orders[order_id]={"store_id":store_id,"status":status,"books":{book_id:[price,count]},"amount":int(price)*int(count)}
+                        history_orders[order_id]={
+                            "store_id":store_id,
+                            "status":status,
+                            "books":{
+                                book_id:[price,count]
+                            },
+                            "amount":int(price)*int(count)
+                        }
                     else:
                         history_orders[order_id]["books"][book_id]=[price,count]
                         history_orders[order_id]["amount"]+=price*count
         except (Exception, psycopg2.DatabaseError) as e:
-            print(row)
             traceback.print_exc()
             return 528, "{}".format(str(e)),{},
         except BaseException as e:
@@ -293,6 +299,34 @@ class Buyer(db_conn.DBConn):
             # self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as e:
             traceback.print_exc()
+            return 528, "{}".format(str(e)),
+        except BaseException as e:
+            return 530, "{}".format(str(e)),
+        return 200, "ok"
+
+    def order_return(self,user_id,password,order_id):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT password  from \"user\" where user_id= (%s)", (user_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return error.error_non_exist_user_id(user_id)
+
+            if row[0] != password:
+                return error.error_authorization_fail()
+
+            if not self.order_id_exist(order_id):
+                return error.error_and_message(522, error.error_code[522].format(order_id))
+
+            if not self.buyer_order_exist(user_id, order_id):
+                return error.error_and_message(541, error.error_code[541].format(order_id, user_id))
+
+            if not self.pay_flag_set(order_id):
+                return error.error_and_message(523,error.error_code[523])
+
+            cursor.execute("UPDATE \"new_order\" SET return=1 WHERE order_id=(%s)", (order_id,))
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as e:
             return 528, "{}".format(str(e)),
         except BaseException as e:
             return 530, "{}".format(str(e)),

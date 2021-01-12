@@ -52,6 +52,8 @@ class Store:
                     pay INTEGER,
                     deliver INTEGER ,
                     receive INTEGER,
+                    return INTEGER,
+                    refund INTEGER,
                     order_time FLOAT 
             )
             """,

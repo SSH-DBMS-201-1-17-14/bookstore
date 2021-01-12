@@ -60,3 +60,14 @@ class Seller:
         headers={"token":self.token}
         r=requests.post(url,headers=headers,json=json)
         return r.status_code
+
+    def admmit_return(self,seller_id:str,password:str,order_id:str)->int:
+        json={
+            "user_id":seller_id,
+            "password":password,
+            "order_id":order_id
+        }
+        url = urljoin(self.url_prefix, "admmit_return")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        return r.status_code

@@ -66,3 +66,13 @@ def cancel_order():
     b=Buyer()
     code,message=b.cancel_order(user_id,password,order_id)
     return jsonify({"message": message}), code
+
+
+@bp_buyer.route("/order_return",methods=["POST"])
+def order_return():
+    user_id: str = request.json.get("user_id")
+    password: str = request.json.get("password")
+    order_id: str = request.json.get("order_id")
+    b = Buyer()
+    code, message = b.order_return(user_id, password, order_id)
+    return jsonify({"message": message}), code

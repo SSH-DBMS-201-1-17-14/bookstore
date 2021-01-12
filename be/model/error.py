@@ -27,7 +27,8 @@ error_code = {
     535: "",
     541: "order {} doesn't belong to user {} ",
     542: "order {} hasn't been deliverd",
-    543: "order {} pay flag set, can't cancel"
+    543: "order {} pay flag set, can't cancel",
+    544: "order {} return flag not set,can't return"
 }
 
 
@@ -87,12 +88,12 @@ def error_authorization_fail():
 
 # 某家店铺未上架过新书
 def error_store_book_empty(store_id):
-    return 531, error_code[531].format(store_id)," "
+    return 531, error_code[531].format(store_id), " "
 
 
 # 用户输入的页码太大（超过最大页）
 def error_page_out_of_range(user_id):
-    return 532, error_code[532].format(user_id)," "
+    return 532, error_code[532].format(user_id), " "
 
 
 def error_non_exist_user_id_when_search(user_id):

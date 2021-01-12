@@ -48,3 +48,13 @@ def deliver():
     s=seller.Seller()
     code,message=s.deliver(user_id,order_id)
     return jsonify({"message": message}), code
+
+
+@bp_seller.route("/admmit_return",methods=["POST"])
+def admmit_return():
+    user_id: str = request.json.get("user_id")
+    password: str = request.json.get("password")
+    order_id: str = request.json.get("order_id")
+    b = seller.Seller()
+    code, message = b.admmit_return(user_id, password, order_id)
+    return jsonify({"message": message}), code

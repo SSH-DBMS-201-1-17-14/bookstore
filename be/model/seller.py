@@ -3,7 +3,7 @@ from be.model import error
 from be.model import db_conn
 import psycopg2
 import traceback
-
+import be.model.tool as tool
 class Seller(db_conn.DBConn):
 
     def __init__(self):
@@ -91,3 +91,53 @@ class Seller(db_conn.DBConn):
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
+
+    def admmit_return(self,user_id,password,order_id):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT password  from \"user\" where user_id= (%s)", (user_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return error.error_non_exist_user_id(user_id)
+
+            if row[0] != password:
+                return error.error_authorization_fail()
+
+            if not self.order_id_exist(order_id):
+                return error.error_and_message(522, error.error_code[522].format(order_id))
+
+            if not self.return_flag_set(order_id):
+                return error.error_and_message(544, error.error_code[544].format(order_id))
+
+            cursor.execute("SELECT book_id, count, price FROM \"new_order_detail\" WHERE order_id = (%s)", (order_id,))
+            total_price = 0
+            rows=cursor.fetchall()
+            for row in rows:
+                count = row[1]
+                price = row[2]
+                total_price = total_price + price * count
+
+            cursor.execute("SELECT user_id from \"new_order\" where order_id= (%s)", (order_id,))
+            buyer_id=cursor.fetchone()[0]
+
+            cursor.execute("UPDATE \"user\" SET balance = balance - (%s)"
+                           "WHERE user_id = (%s) AND balance >= (%s)",
+                           (total_price, user_id, total_price))
+
+
+            cursor.execute("UPDATE \"user\" SET balance = balance + (%s)"
+                           "WHERE user_id = (%s)",
+                           (total_price, buyer_id,))
+
+            tool.cancel_order_tool(self.conn,order_id)
+            cursor.execute("UPDATE \"new_order\" SET refund=1"
+                           "WHERE order_id = (%s)",
+                           (order_id,))
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError)  as e:
+            traceback.print_exc()
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        return 200, "ok"
+
