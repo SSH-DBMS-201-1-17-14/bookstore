@@ -186,11 +186,15 @@ class Buyer(db_conn.DBConn):
 
     def receive(self,user_id,order_id)->(int,str):
         try:
-            if not self.user_id_exist(user_id):
-                return error.error_non_exist_user_id(user_id)
-            if not self.order_id_exist(order_id):
-                return error.error_and_message(522,error.error_code[522].format(order_id))
+            # if not self.user_id_exist(user_id):
+            #     return error.error_non_exist_user_id(user_id)
+            # if not self.order_id_exist(order_id):
+            #     return error.error_and_message(522,error.error_code[522].format(order_id))
             if not self.buyer_order_exist(user_id,order_id):
+                if not self.user_id_exist(user_id):
+                    return error.error_non_exist_user_id(user_id)
+                if not self.order_id_exist(order_id):
+                    return error.error_and_message(522, error.error_code[522].format(order_id))
                 return error.error_and_message(541,error.error_code[541].format(order_id,user_id))
             if not self.deliver_flag_set(order_id):
                 return error.error_and_message(542,error.error_code[542].format(order_id))

@@ -4,7 +4,6 @@ import logging
 import sqlite3 as sqlite
 from be.model import error
 from be.model import db_conn
-from initial_database import initial_search
 import psycopg2
 import jieba
 import re
