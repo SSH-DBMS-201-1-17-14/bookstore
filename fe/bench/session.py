@@ -45,7 +45,7 @@ class Session(threading.Thread):
 
                 # 进入循环前打开logging_deal.txt
                 f_deal = open('D:\\logging_deal.txt', mode='a')
-                f_deal.write('开始测试性能\n')
+                # f_deal.write('开始测试性能\n')
                 self.workload.update_stat(self.new_order_i, self.payment_i, self.new_order_ok, self.payment_ok,
                                           self.time_new_order, self.time_payment,f_deal)
                 for payment in self.payment_request:
