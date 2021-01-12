@@ -200,9 +200,6 @@ class User(db_conn.DBConn):
 
     def store_search_title(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
-            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
-            if not self.store_book_empty(store_id):
-                return error.error_store_book_empty(store_id)
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
@@ -211,7 +208,7 @@ class User(db_conn.DBConn):
             cursor = self.conn.cursor()
             # query =   #global 的时候去掉where
             # cursor.execute("SELECT book_id FROM \"store\" WHERE stock_level > 0 AND store_id = %s", (store_id,)  )
-            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
+            cursor.execute("SELECT DISTINCT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
             rows = cursor.fetchall()
             for row in rows:
@@ -233,9 +230,6 @@ class User(db_conn.DBConn):
 
     def store_search_book_intro(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
-            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
-            if not self.store_book_empty(store_id):
-                return error.error_store_book_empty(store_id)
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
@@ -243,7 +237,7 @@ class User(db_conn.DBConn):
             ## 先找出这家店的book_id
             cursor = self.conn.cursor()
             # query =     #global 的时候去掉where
-            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
+            cursor.execute("SELECT DISTINCT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             book_id = []
             rows = cursor.fetchall()
             for row in rows:
@@ -264,9 +258,6 @@ class User(db_conn.DBConn):
 
     def store_search_content(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
-            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
-            if not self.store_book_empty(store_id):
-                return error.error_store_book_empty(store_id)
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
@@ -274,7 +265,7 @@ class User(db_conn.DBConn):
             # # 先找出这家店的book_id
             cursor = self.conn.cursor()
             # query =    #global 的时候去掉where
-            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,) )
+            cursor.execute("SELECT DISTINCT book_id FROM \"store\" WHERE store_id = %s", (store_id,) )
             rows=cursor.fetchall()
             book_id = []
             for row in rows:
@@ -284,7 +275,6 @@ class User(db_conn.DBConn):
             if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
-            print(len(book_id))
             traceback.print_exc()
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e))," "
@@ -295,9 +285,6 @@ class User(db_conn.DBConn):
 
     def store_search_tag(self, user_id: str, store_id: str, search_info: str, page: int):
         try:
-            # 首先，判断 store 表中是否存在 store_id，可能存在用户建店铺但未上架新书的情况
-            if not self.store_book_empty(store_id):
-                return error.error_store_book_empty(store_id)
             # 判断是否存在用户 id
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id_when_search(user_id)
@@ -305,7 +292,7 @@ class User(db_conn.DBConn):
             cursor = self.conn.cursor()
             # query =
             # cur.execute("SELECT store_id FROM \"store\" WHERE store_id =  (%s) ", (store_id,))
-            cursor.execute("SELECT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
+            cursor.execute("SELECT DISTINCT book_id FROM \"store\" WHERE store_id = %s", (store_id,))
             rows=cursor.fetchall()
             book_id = []
             for row in rows:
@@ -333,14 +320,15 @@ class User(db_conn.DBConn):
             # 查询
             # # 先找出这家店的book_id
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" "   #global 的时候去掉where
+            query = "SELECT DISTINCT book_id FROM \"store\" "   #global 的时候去掉where
             cursor.execute(query)
             book_id = []
             rows=cursor.fetchall()
             for row in rows:
                 book_id.append(row[0])
             title_search = search.Search(search_info, page, book_id) #实例化一个search类
-            book_list =  title_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
+            book_list = title_search.search_bookid_content()  # !!!!!调用函数，得到返回结果 返回得到相关列表
+
             if len(book_list) == 0:
                 return error.error_page_out_of_range(user_id)
         except (Exception, psycopg2.DatabaseError) as e:
@@ -359,7 +347,7 @@ class User(db_conn.DBConn):
             # 查询
             # # 先找出这家店的book_id
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" "  # global 的时候去掉where
+            query = "SELECT DISTINCT book_id FROM \"store\" "  # global 的时候去掉where
             cursor.execute(query)
             book_id = []
             rows=cursor.fetchall()
@@ -385,7 +373,7 @@ class User(db_conn.DBConn):
             # 查询
             # # 先找出这家店的book_id
             cursor = self.conn.cursor()
-            query = "SELECT book_id FROM \"store\" "  # global 的时候去掉where
+            query = "SELECT DISTINCT book_id FROM \"store\" "  # global 的时候去掉where
             cursor.execute(query)
             book_id = []
             rows = cursor.fetchall()
@@ -411,7 +399,7 @@ class User(db_conn.DBConn):
             # 进行查询
             cursor = self.conn.cursor()
             # query =
-            cursor.execute("SELECT book_id FROM \"store\" ")
+            cursor.execute("SELECT DISTINCT book_id FROM \"store\" ")
             book_id = []
             rows = cursor.fetchall()
             for row in rows:
@@ -429,3 +417,25 @@ class User(db_conn.DBConn):
             logging.info("530, {}".format(str(e)))
             return 530, "{}".format(str(e))," "
         return 200, "ok" ,book_list
+
+
+    def get_store_id(self,user_id: str, book_id):
+        try:
+            # 判断是否存在用户 id
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id_when_search(user_id)
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT DISTINCT store_id FROM \"store\" WHERE book_id = (%s)",(book_id,))
+            rows = cursor.fetchall()
+            store_id_list = ""
+            #store_id_list = []
+            for row in rows:
+                store_id_list = store_id_list + " " + row[0]
+                #store_id_list.append(row[0])
+            return 200, "ok",store_id_list
+        except (Exception, psycopg2.DatabaseError) as e:
+            logging.info("528, {}".format(str(e)))
+            return 528, "{}".format(str(e)), ""
+        except BaseException as e:
+            logging.info("530, {}".format(str(e)))
+            return 530, "{}".format(str(e)), ""
