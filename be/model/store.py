@@ -13,7 +13,7 @@ class Store:
         self.database="bookstore"
         self.host="localhost"
         self.user="postgres"
-        self.password="shypostgredql"
+        self.password="1234"
         # self.database = os.path.join(db_path, "be.db")
         self.init_tables()
 
@@ -32,7 +32,7 @@ class Store:
             CREATE TABLE IF NOT EXISTS "user_store" (
                     user_id TEXT,
                     store_id TEXT,
-                    PRIMARY KEY(user_id, store_id)
+                    PRIMARY KEY(store_id,user_id)
             )
             """,
             """
