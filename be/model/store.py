@@ -10,10 +10,10 @@ class Store:
     password:str
 
     def __init__(self):
-        self.database="bookstore"
-        self.host="localhost"
-        self.user="postgres"
-        self.password="1234"
+        self.database=
+        self.host=
+        self.user=
+        self.password=
         # self.database = os.path.join(db_path, "be.db")
         self.init_tables()
 

@@ -14,10 +14,10 @@ from be.model.tool import cancel_order_tool,auto_admmit_return
 class GlobalAutoCancelOrder():
     def __init__(self,scheduler):
         self.scheduler=scheduler
-        self.database = "bookstore"
-        self.host = "localhost"
-        self.user = "postgres"
-        self.password = "shypostgredql"
+        self.database =
+        self.host =
+        self.user =
+        self.password =
         self.conn = psycopg2.connect(host=self.host, database=self.database, user=self.user, password=self.password)
     def delete_order(self,order_id):
         cancel_order_tool(self.conn, order_id)
